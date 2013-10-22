@@ -4,17 +4,20 @@
   "manifest_version": 2,
   "description": "Add Flags to the DOM",
   "homepage_url": "http://lapier.me",
+  "devtools_page": "src/devtools/devtools.html",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
   "default_locale": "en",
+  "permissions": [ "contextMenus" ],
   "background": {
+    "persistent": true,
     "scripts": [
       "src/bg/background.js"
-    ],
-    "persistent": true
+    ]
+    // "page": "src/bg/background.html",
   },
   "options_page": "src/options/index.html",
   "page_action": {
@@ -25,9 +28,12 @@
   "content_scripts": [
     {
       "matches": [
-        "https://www.google.com/*"
+        "http://*/*",
+        "https://*/*",
+        "file://*/*"
       ],
       "js": [
+        "js/jquery/jquery.min.js",
         "src/inject/inject.js"
       ]
     }
