@@ -1,7 +1,6 @@
 console.log "devtools panel"
 
 chrome.devtools.inspectedWindow.eval "inspect($$('[domflag]')[0])"
-# chrome.devtools.inspectedWindow.eval "inspect($('.domflag'))"
 
  ## Create DevTools Sidebar in Elements Tab
 chrome.devtools.panels.elements.createSidebarPane "DOM Flags", (sidebar) ->

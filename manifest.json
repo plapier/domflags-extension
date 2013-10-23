@@ -17,7 +17,7 @@
     "scripts": [
       "src/bg/background.js"
     ]
-    // "page": "src/bg/background.html",
+    // "page": "src/bg/background.html"
   },
   "options_page": "src/options/index.html",
   "page_action": {
