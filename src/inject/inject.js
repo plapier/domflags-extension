@@ -26,3 +26,9 @@ for (key in $domflags) {
 chrome.runtime.sendMessage({
   flags: flagElements
 });
+
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  return sendResponse({
+    flags: flagElements
+  });
+});

@@ -23,3 +23,24 @@ chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
       port.postMessage key: info.menuItemId
 
     chrome.contextMenus.onClicked.addListener onClickHandler
+
+
+# openCount = 0
+# chrome.runtime.onConnect.addListener (port) ->
+  # if port.name is "devtools"
+    # alert "DevTools window opening."  if openCount is 0
+    # openCount++
+    # port.onDisconnect.addListener (port) ->
+      # openCount--
+      # alert "Last DevTools window closing."  if openCount is 0
+
+
+
+chrome.tabs.onActivated.addListener (activeInfo) ->
+  console.log activeInfo.tabId
+
+  ## Send message to content script to get DOM flags. Receive flags.
+  chrome.tabs.sendMessage activeInfo.tabId, "hello world" , (response) ->
+    if response
+      console.log response.flags
+      ## Update the context menus with correct DOM NODES

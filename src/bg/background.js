@@ -28,3 +28,12 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     return chrome.contextMenus.onClicked.addListener(onClickHandler);
   });
 });
+
+chrome.tabs.onActivated.addListener(function(activeInfo) {
+  console.log(activeInfo.tabId);
+  return chrome.tabs.sendMessage(activeInfo.tabId, "hello world", function(response) {
+    if (response) {
+      return console.log(response.flags);
+    }
+  });
+});

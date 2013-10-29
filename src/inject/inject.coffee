@@ -14,3 +14,7 @@ for own key of $domflags
 
 chrome.runtime.sendMessage
   flags: flagElements
+
+## Receive request for flags. Send flags to background.js
+chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
+  sendResponse flags: flagElements
