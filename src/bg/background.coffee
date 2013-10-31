@@ -1,27 +1,22 @@
 # console.log "background.js"
 
-# background.js
-chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
-
-  ## Create the Menus Items for the Context Menu
-  createMenuItems = (flags) ->
+updateContextMenus = (flags) ->
+  chrome.contextMenus.removeAll()
+  if flags.length > 0
     for own key, value of flags
-      # console.log value
       chrome.contextMenus.create
         title: value
         id: "#{key}"
         contexts: ['all']
 
-  createMenuItems(message.flags)
-
+chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
+  updateContextMenus(message.flags)
 
   ## Connect when the devtools panel is open
   chrome.runtime.onConnect.addListener (port) ->
-
     ## Send the key of the clicked menu item to devtools
     onClickHandler = (info, tab) ->
       port.postMessage key: info.menuItemId
-
     chrome.contextMenus.onClicked.addListener onClickHandler
 
 
@@ -35,12 +30,8 @@ chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
       # alert "Last DevTools window closing."  if openCount is 0
 
 
-
 chrome.tabs.onActivated.addListener (activeInfo) ->
-  console.log activeInfo.tabId
-
   ## Send message to content script to get DOM flags. Receive flags.
-  chrome.tabs.sendMessage activeInfo.tabId, "hello world" , (response) ->
+  chrome.tabs.sendMessage activeInfo.tabId, "give me domflags" , (response) ->
     if response
-      console.log response.flags
-      ## Update the context menus with correct DOM NODES
+      updateContextMenus(response.flags)
