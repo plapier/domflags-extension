@@ -3,18 +3,15 @@ var port, showDomFlag;
 
 console.log("devtools panel");
 
-chrome.devtools.panels.elements.createSidebarPane("DOM Flags", function(sidebar) {
-  return sidebar.setObject({
-    some_data: "Some data to show"
-  });
-});
-
 showDomFlag = function(key) {
   return chrome.devtools.inspectedWindow["eval"]("inspect($$('[domflag]')[" + key + "])");
 };
 
 chrome.devtools.network.onRequestFinished.addListener(function(request) {
   if (request) {
+    port.postMessage({
+      msg: "connected"
+    });
     return showDomFlag(0);
   }
 });
@@ -22,9 +19,15 @@ chrome.devtools.network.onRequestFinished.addListener(function(request) {
 showDomFlag(0);
 
 port = chrome.runtime.connect({
-  name: "devtools"
+  name: "devtoolsConnect"
+});
+
+port.postMessage({
+  msg: "connected"
 });
 
 port.onMessage.addListener(function(msg) {
-  return showDomFlag(msg.key);
+  if (msg.name === "contextMenuClick") {
+    return showDomFlag(msg.key);
+  }
 });

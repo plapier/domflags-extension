@@ -2,9 +2,17 @@
 var updateContextMenus,
   __hasProp = {}.hasOwnProperty;
 
-updateContextMenus = function(flags) {
-  var key, value, _results;
-  chrome.contextMenus.removeAll();
+console.log("background.js");
+
+updateContextMenus = function(flags, port) {
+  var key, onClickHandler, value, _results;
+  onClickHandler = function(info, tab) {
+    return port.postMessage({
+      name: "contextMenuClick",
+      key: info.menuItemId,
+      tab: tab
+    });
+  };
   if (flags.length > 0) {
     _results = [];
     for (key in flags) {
@@ -13,30 +21,35 @@ updateContextMenus = function(flags) {
       _results.push(chrome.contextMenus.create({
         title: value,
         id: "" + key,
-        contexts: ['all']
+        contexts: ['all'],
+        onclick: onClickHandler
       }));
     }
     return _results;
   }
 };
 
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-  updateContextMenus(message.flags);
-  return chrome.runtime.onConnect.addListener(function(port) {
-    var onClickHandler;
-    onClickHandler = function(info, tab) {
-      return port.postMessage({
-        key: info.menuItemId
+chrome.runtime.onConnect.addListener(function(port) {
+  if (port.name === "devtoolsConnect") {
+    console.log(port.portId_);
+    port.onMessage.addListener(function(msg) {
+      return chrome.tabs.query({
+        lastFocusedWindow: true,
+        active: true
+      }, function(tabs) {
+        return chrome.tabs.sendMessage(tabs[0].id, "Give me domflags", function(response) {
+          if (response) {
+            return updateContextMenus(response.flags, port);
+          }
+        });
       });
-    };
-    return chrome.contextMenus.onClicked.addListener(onClickHandler);
-  });
+    });
+    return port.onDisconnect.addListener(function(port) {
+      return chrome.contextMenus.removeAll();
+    });
+  }
 });
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
-  return chrome.tabs.sendMessage(activeInfo.tabId, "give me domflags", function(response) {
-    if (response) {
-      return updateContextMenus(response.flags);
-    }
-  });
+  return chrome.contextMenus.removeAll();
 });

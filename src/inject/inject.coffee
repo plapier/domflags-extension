@@ -16,9 +16,10 @@ init = ->
       domString = domArray.join(' ')
       flagElements.push(domString)
 
-  chrome.runtime.sendMessage
-    flags: flagElements
+  # chrome.runtime.sendMessage
+    # flags: flagElements
 
   ## Receive request for flags. Send flags to background.js
   chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
+    console.log message
     sendResponse flags: flagElements

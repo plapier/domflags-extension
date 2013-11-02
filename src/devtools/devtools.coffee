@@ -1,9 +1,5 @@
 console.log "devtools panel"
 
- ## Create DevTools Sidebar in Elements Tab
-chrome.devtools.panels.elements.createSidebarPane "DOM Flags", (sidebar) ->
-  sidebar.setObject some_data: "Some data to show"
-
 ##################
 ## TODO: Disable if currect selected Node is a Domflag?
 
@@ -13,6 +9,7 @@ showDomFlag = (key) ->
 ## Select first domflag on pagerefresh
 chrome.devtools.network.onRequestFinished.addListener (request) ->
   if request
+    port.postMessage(msg: "connected")
     showDomFlag(0)
 
 showDomFlag(0)
@@ -21,6 +18,10 @@ showDomFlag(0)
 
 ## Open a port with background.js
 ## Receive key and inspect the element
-port = chrome.runtime.connect(name: "devtools")
+port = chrome.runtime.connect(name: "devtoolsConnect")
+port.postMessage(msg: "connected")
 port.onMessage.addListener (msg) ->
-  showDomFlag(msg.key)
+  if msg.name is "contextMenuClick"
+    showDomFlag(msg.key)
+
+# chrome.runtime.sendMessage(name: "devtools")

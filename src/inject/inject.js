@@ -26,10 +26,8 @@ init = function() {
       flagElements.push(domString);
     }
   }
-  chrome.runtime.sendMessage({
-    flags: flagElements
-  });
   return chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+    console.log(message);
     return sendResponse({
       flags: flagElements
     });
