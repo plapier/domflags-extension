@@ -18,10 +18,11 @@ showDomFlag(0)
 
 ## Open a port with background.js
 ## Receive key and inspect the element
-port = chrome.runtime.connect(name: "devtoolsConnect")
-port.postMessage(msg: "connected")
+port = chrome.runtime.connect(name: "devtools")
+port.postMessage(msg: "initiate")
 port.onMessage.addListener (msg) ->
   if msg.name is "contextMenuClick"
     showDomFlag(msg.key)
-
-# chrome.runtime.sendMessage(name: "devtools")
+  else if msg.name is "TabChange"
+    console.log msg.name
+    port.postMessage(msg: "reinitiate")

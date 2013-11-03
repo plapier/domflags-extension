@@ -2,6 +2,7 @@ console.log "background.js"
 
 updateContextMenus = (flags, port) ->
   onClickHandler = (info, tab) ->
+    console.log port
     port.postMessage
       name: "contextMenuClick"
       key: info.menuItemId
@@ -15,40 +16,43 @@ updateContextMenus = (flags, port) ->
         contexts: ['all']
         onclick: onClickHandler
 
-
+ports = []
 chrome.runtime.onConnect.addListener (port) ->
-  if port.name is "devtoolsConnect"
-    console.log port.portId_
-    port.onMessage.addListener (msg) ->
-      chrome.tabs.query
-        lastFocusedWindow: true
-        active: true
-      , (tabs) ->
+  # console.log port
+  return if port.name isnt "devtools"
 
-        chrome.tabs.sendMessage tabs[0].id, "Give me domflags" , (response) ->
-          if response
-            updateContextMenus(response.flags, port)
+  port.onMessage.addListener (msg) ->
+    chrome.tabs.query
+      lastFocusedWindow: true
+      active: true
+    , (tabs) ->
 
-    port.onDisconnect.addListener (port) ->
-      chrome.contextMenus.removeAll()
+      ports[tabs[0].id] = port: port, portId: port.portId_, tab: tabs[0].id
 
-    # chrome.tabs.onActivated.addListener (activeInfo) ->
-      # console.log port.portId_
+      chrome.tabs.sendMessage tabs[0].id, "Give me domflags" , (response) ->
+        if response
+          updateContextMenus(response.flags, port)
 
-# openCount = 0
-# chrome.runtime.onConnect.addListener (port) ->
-  # if port.name is "devtools"
-    # alert "DevTools window opening."  if openCount is 0
-    # openCount++
-    # port.onDisconnect.addListener (port) ->
-      # openCount--
-      # alert "Last DevTools window closing."  if openCount is 0
+  port.onDisconnect.addListener (port) ->
+    chrome.contextMenus.removeAll()
+    console.log ports[port.portId_]
+    delete ports[port.portId_]
 
+  chrome.tabs.onActivated.addListener (activeInfo) ->
+    chrome.tabs.query
+      lastFocusedWindow: true
+      active: true
+    , (tabs) ->
+
+      chrome.tabs.sendMessage tabs[0].id, "Give me domflags" , (response) ->
+        if response
+          updateContextMenus(response.flags, ports[tabs[0].id].port)
+
+    # Object.keys(ports).forEach (portId_) ->
+      # ports[portId_].postMessage(name:"TabChange")
 
 # Run when Tab becomes active
 chrome.tabs.onActivated.addListener (activeInfo) ->
+  console.log ports
   chrome.contextMenus.removeAll()
-  # ## Send message to content script to get DOM flags. Receive flags.
-  # chrome.tabs.sendMessage activeInfo.tabId, "give me domflags" , (response) ->
-    # if response
-      # updateContextMenus(response.flags)
+

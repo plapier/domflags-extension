@@ -28,8 +28,10 @@ init = function() {
   }
   return chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     console.log(message);
-    return sendResponse({
-      flags: flagElements
-    });
+    if (message === "Give me domflags") {
+      return sendResponse({
+        flags: flagElements
+      });
+    }
   });
 };

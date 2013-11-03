@@ -19,15 +19,20 @@ chrome.devtools.network.onRequestFinished.addListener(function(request) {
 showDomFlag(0);
 
 port = chrome.runtime.connect({
-  name: "devtoolsConnect"
+  name: "devtools"
 });
 
 port.postMessage({
-  msg: "connected"
+  msg: "initiate"
 });
 
 port.onMessage.addListener(function(msg) {
   if (msg.name === "contextMenuClick") {
     return showDomFlag(msg.key);
+  } else if (msg.name === "TabChange") {
+    console.log(msg.name);
+    return port.postMessage({
+      msg: "reinitiate"
+    });
   }
 });
