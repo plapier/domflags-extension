@@ -2,19 +2,26 @@ console.log "background.js"
 
 updateContextMenus = (flags, port) ->
   onClickHandler = (info, tab) ->
-    console.log port
+    console.log "Menu Clicked"
     port.postMessage
       name: "contextMenuClick"
       key: info.menuItemId
       tab: tab
 
   if flags.length > 0
+    console.log "created context menus"
     for own key, value of flags
       chrome.contextMenus.create
         title: value
         id: "#{key}"
         contexts: ['all']
         onclick: onClickHandler
+
+requestDomFlags = (tabs, port) ->
+  chrome.tabs.sendMessage tabs[0].id, "Give me domflags" , (response) ->
+    if response
+      updateContextMenus(response.flags, port)
+
 
 ports = []
 chrome.runtime.onConnect.addListener (port) ->
@@ -26,33 +33,34 @@ chrome.runtime.onConnect.addListener (port) ->
       lastFocusedWindow: true
       active: true
     , (tabs) ->
-
+      ## Create array of tabs with open ports
       ports[tabs[0].id] = port: port, portId: port.portId_, tab: tabs[0].id
+      tabPort = ports[tabs[0].id].port
+      requestDomFlags(tabs, tabPort)
 
-      chrome.tabs.sendMessage tabs[0].id, "Give me domflags" , (response) ->
-        if response
-          updateContextMenus(response.flags, port)
-
-  port.onDisconnect.addListener (port) ->
-    chrome.contextMenus.removeAll()
-    console.log ports[port.portId_]
-    delete ports[port.portId_]
-
-  chrome.tabs.onActivated.addListener (activeInfo) ->
+  tabChange = ()->
+    console.log "TabChange"
     chrome.tabs.query
       lastFocusedWindow: true
       active: true
     , (tabs) ->
+      if ports[tabs[0].id]
+        console.log "Found tab: " + ports[tabs[0].id]
+        tabPort = ports[tabs[0].id].port
+        requestDomFlags(tabs, tabPort)
 
-      chrome.tabs.sendMessage tabs[0].id, "Give me domflags" , (response) ->
-        if response
-          updateContextMenus(response.flags, ports[tabs[0].id].port)
+  port.onDisconnect.addListener (port) ->
+    chrome.contextMenus.removeAll()
+    chrome.tabs.onActivated.removeListener(tabChange)
+    chrome.tabs.query
+      lastFocusedWindow: true
+      active: true
+    , (tabs) ->
+      delete ports[tabs[0].id]
 
-    # Object.keys(ports).forEach (portId_) ->
-      # ports[portId_].postMessage(name:"TabChange")
+  chrome.tabs.onActivated.addListener(tabChange)
 
 # Run when Tab becomes active
 chrome.tabs.onActivated.addListener (activeInfo) ->
   console.log ports
   chrome.contextMenus.removeAll()
-
