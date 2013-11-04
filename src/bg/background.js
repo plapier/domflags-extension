@@ -2,12 +2,9 @@
 var ports, requestDomFlags, updateContextMenus,
   __hasProp = {}.hasOwnProperty;
 
-console.log("background.js");
-
 updateContextMenus = function(flags, port) {
   var key, onClickHandler, value, _results;
   onClickHandler = function(info, tab) {
-    console.log("Menu Clicked");
     return port.postMessage({
       name: "contextMenuClick",
       key: info.menuItemId,
@@ -15,7 +12,6 @@ updateContextMenus = function(flags, port) {
     });
   };
   if (flags.length > 0) {
-    console.log("created context menus");
     _results = [];
     for (key in flags) {
       if (!__hasProp.call(flags, key)) continue;
@@ -62,14 +58,12 @@ chrome.runtime.onConnect.addListener(function(port) {
     });
   });
   tabChange = function() {
-    console.log("TabChange");
     return chrome.tabs.query({
       lastFocusedWindow: true,
       active: true
     }, function(tabs) {
       var tabPort;
       if (ports[tabs[0].id]) {
-        console.log("Found tab: " + ports[tabs[0].id]);
         tabPort = ports[tabs[0].id].port;
         return requestDomFlags(tabs, tabPort);
       }
@@ -89,6 +83,5 @@ chrome.runtime.onConnect.addListener(function(port) {
 });
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
-  console.log(ports);
   return chrome.contextMenus.removeAll();
 });

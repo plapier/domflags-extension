@@ -1,15 +1,13 @@
-console.log "background.js"
+#### BACKGROUND SCRIPT
 
 updateContextMenus = (flags, port) ->
   onClickHandler = (info, tab) ->
-    console.log "Menu Clicked"
     port.postMessage
       name: "contextMenuClick"
       key: info.menuItemId
       tab: tab
 
   if flags.length > 0
-    console.log "created context menus"
     for own key, value of flags
       chrome.contextMenus.create
         title: value
@@ -22,10 +20,8 @@ requestDomFlags = (tabs, port) ->
     if response
       updateContextMenus(response.flags, port)
 
-
 ports = []
 chrome.runtime.onConnect.addListener (port) ->
-  # console.log port
   return if port.name isnt "devtools"
 
   port.onMessage.addListener (msg) ->
@@ -38,14 +34,12 @@ chrome.runtime.onConnect.addListener (port) ->
       tabPort = ports[tabs[0].id].port
       requestDomFlags(tabs, tabPort)
 
-  tabChange = ()->
-    console.log "TabChange"
+  tabChange = ->
     chrome.tabs.query
       lastFocusedWindow: true
       active: true
     , (tabs) ->
       if ports[tabs[0].id]
-        console.log "Found tab: " + ports[tabs[0].id]
         tabPort = ports[tabs[0].id].port
         requestDomFlags(tabs, tabPort)
 
@@ -62,5 +56,4 @@ chrome.runtime.onConnect.addListener (port) ->
 
 # Run when Tab becomes active
 chrome.tabs.onActivated.addListener (activeInfo) ->
-  console.log ports
   chrome.contextMenus.removeAll()

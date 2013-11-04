@@ -1,7 +1,4 @@
-console.log "devtools panel"
-
-##################
-## TODO: Disable if currect selected Node is a Domflag?
+#### DEVTOOLS SCRIPT
 
 showDomFlag = (key) ->
   chrome.devtools.inspectedWindow.eval "inspect($$('[domflag]')[#{key}])"
@@ -23,6 +20,3 @@ port.postMessage(msg: "initiate")
 port.onMessage.addListener (msg) ->
   if msg.name is "contextMenuClick"
     showDomFlag(msg.key)
-  else if msg.name is "TabChange"
-    console.log msg.name
-    port.postMessage(msg: "reinitiate")
