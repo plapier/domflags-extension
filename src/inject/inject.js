@@ -7,28 +7,47 @@ $(document).ready(function() {
 });
 
 init = function() {
-  var $domflags, domArray, domString, domTag, flagElements, key;
+  var $domflags, domArray, domString, domTag, el, elements, flagElements, html, key, value;
   $domflags = $('[domflag]');
   flagElements = [];
-  for (key in $domflags) {
-    if (!__hasProp.call($domflags, key)) continue;
-    if ($.isNumeric(key)) {
-      domTag = $domflags[key].tagName;
-      domArray = [domTag];
-      Array.prototype.slice.call($domflags[key].attributes).forEach(function(item) {
-        if (item.name !== "domflag") {
-          return domArray.push("" + item.name + "='" + item.value + "'");
-        }
-      });
-      domString = domArray.join(' ');
-      flagElements.push(domString);
+  if ($domflags.length > 0) {
+    for (key in $domflags) {
+      if (!__hasProp.call($domflags, key)) continue;
+      if ($.isNumeric(key)) {
+        domTag = $domflags[key].tagName;
+        domArray = [domTag];
+        Array.prototype.slice.call($domflags[key].attributes).forEach(function(item) {
+          if (item.name !== "domflag") {
+            return domArray.push("" + item.name + "='" + item.value + "'");
+          }
+        });
+        domString = domArray.join(' ');
+        flagElements.push(domString);
+      }
     }
+    chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+      if (message === "Give me domflags") {
+        return sendResponse({
+          flags: flagElements
+        });
+      }
+    });
+    elements = "";
+    for (key in flagElements) {
+      if (!__hasProp.call(flagElements, key)) continue;
+      value = flagElements[key];
+      if ($.isNumeric(key)) {
+        el = "<li data-key='" + key + "'>" + value + "</li>";
+        elements = "" + elements + " " + el;
+      }
+    }
+    html = "<section id=\"domflags-panel\">\n  <ol>\n    " + elements + "\n  </ol>\n</section>";
+    return $('#domflags-panel').on('click', 'li', function(event) {
+      key = $(this).attr('data-key');
+      return chrome.runtime.sendMessage({
+        name: "panelClick",
+        key: key
+      });
+    });
   }
-  return chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    if (message === "Give me domflags") {
-      return sendResponse({
-        flags: flagElements
-      });
-    }
-  });
 };

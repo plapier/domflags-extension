@@ -18,5 +18,6 @@ showDomFlag(0)
 port = chrome.runtime.connect(name: "devtools")
 port.postMessage(msg: "initiate")
 port.onMessage.addListener (msg) ->
-  if msg.name is "contextMenuClick"
+  console.log msg
+  if msg.name is "contextMenuClick" or "panelClick"
     showDomFlag(msg.key)

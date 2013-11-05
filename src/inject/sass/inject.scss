@@ -1,0 +1,29 @@
+$background: #252A32;
+#domflags-panel {
+  background: rgba($background, 0.8);
+  bottom: 0;
+  color: #fff;
+  font-family: helvetica, sans-serif;
+  font-size: 11px;
+  left: 0;
+  position: fixed;
+  right: 0;
+
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      padding: 8px;
+      cursor: pointer;
+      display: inline-block;
+      color: #ddd;
+
+      &:hover {
+        color: #fff;
+        background: rgba($background, 0.5);
+      }
+    }
+  }
+}

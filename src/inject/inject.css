@@ -1,0 +1,21 @@
+#domflags-panel {
+  background: rgba(37, 42, 50, 0.8);
+  bottom: 0;
+  color: #fff;
+  font-family: helvetica, sans-serif;
+  font-size: 11px;
+  left: 0;
+  position: fixed;
+  right: 0; }
+  #domflags-panel ol {
+    list-style: none;
+    margin: 0;
+    padding: 0; }
+    #domflags-panel ol li {
+      padding: 8px;
+      cursor: pointer;
+      display: inline-block;
+      color: #ddd; }
+      #domflags-panel ol li:hover {
+        color: #fff;
+        background: rgba(37, 42, 50, 0.5); }

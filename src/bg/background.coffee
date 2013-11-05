@@ -54,6 +54,13 @@ chrome.runtime.onConnect.addListener (port) ->
 
   chrome.tabs.onActivated.addListener(tabChange)
 
+  # chrome.runtime.onMessage.addListener(panelClick)
+  # chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
+    # console.log message
+    # port.postMessage
+      # name: "panelClick"
+      # key: message.key
+
 # Run when Tab becomes active
 chrome.tabs.onActivated.addListener (activeInfo) ->
   chrome.contextMenus.removeAll()
