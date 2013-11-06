@@ -27,8 +27,8 @@ updateContextMenus = function(flags, port) {
   }
 };
 
-requestDomFlags = function(tabs, port) {
-  return chrome.tabs.sendMessage(tabs[0].id, "Give me domflags", function(response) {
+requestDomFlags = function(tabId, port) {
+  return chrome.tabs.sendMessage(tabId, "Give me domflags", function(response) {
     if (response) {
       return updateContextMenus(response.flags, port);
     }
@@ -45,23 +45,24 @@ chrome.runtime.onConnect.addListener(function(port) {
     lastFocusedWindow: true,
     active: true
   }, function(tabs) {
-    var panelClick, tabChange, tabPort;
-    ports[tabs[0].id] = {
+    var panelClick, tabChange, tabId, tabPort;
+    tabId = tabs[0].id;
+    ports[tabId] = {
       port: port,
       portId: port.portId_,
-      tab: tabs[0].id
+      tab: tabId
     };
-    tabPort = ports[tabs[0].id].port;
+    tabPort = ports[tabId].port;
     port.onMessage.addListener(function(msg) {
-      return requestDomFlags(tabs, tabPort);
+      return requestDomFlags(tabId, tabPort);
     });
     tabChange = function() {
       if (tabPort) {
-        return requestDomFlags(tabs, tabPort);
+        return requestDomFlags(tabId, tabPort);
       }
     };
     panelClick = function(message, sender, sendResponse) {
-      if (sender.tab.id === tabs[0].id) {
+      if (sender.tab.id === tabId) {
         return port.postMessage({
           name: "panelClick",
           key: message.key
@@ -74,7 +75,7 @@ chrome.runtime.onConnect.addListener(function(port) {
       chrome.contextMenus.removeAll();
       chrome.runtime.onMessage.removeListener(panelClick);
       chrome.tabs.onActivated.removeListener(tabChange);
-      return delete ports[tabs[0].id];
+      return delete ports[tabId];
     });
   });
 });
