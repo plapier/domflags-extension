@@ -38,48 +38,45 @@ requestDomFlags = function(tabs, port) {
 ports = [];
 
 chrome.runtime.onConnect.addListener(function(port) {
-  var tabChange;
   if (port.name !== "devtools") {
     return;
   }
-  port.onMessage.addListener(function(msg) {
-    return chrome.tabs.query({
-      lastFocusedWindow: true,
-      active: true
-    }, function(tabs) {
-      var tabPort;
-      ports[tabs[0].id] = {
-        port: port,
-        portId: port.portId_,
-        tab: tabs[0].id
-      };
-      tabPort = ports[tabs[0].id].port;
+  return chrome.tabs.query({
+    lastFocusedWindow: true,
+    active: true
+  }, function(tabs) {
+    var panelClick, tabChange, tabPort;
+    ports[tabs[0].id] = {
+      port: port,
+      portId: port.portId_,
+      tab: tabs[0].id
+    };
+    tabPort = ports[tabs[0].id].port;
+    port.onMessage.addListener(function(msg) {
       return requestDomFlags(tabs, tabPort);
     });
-  });
-  tabChange = function() {
-    return chrome.tabs.query({
-      lastFocusedWindow: true,
-      active: true
-    }, function(tabs) {
-      var tabPort;
-      if (ports[tabs[0].id]) {
-        tabPort = ports[tabs[0].id].port;
+    tabChange = function() {
+      if (tabPort) {
         return requestDomFlags(tabs, tabPort);
       }
-    });
-  };
-  port.onDisconnect.addListener(function(port) {
-    chrome.contextMenus.removeAll();
-    chrome.tabs.onActivated.removeListener(tabChange);
-    return chrome.tabs.query({
-      lastFocusedWindow: true,
-      active: true
-    }, function(tabs) {
+    };
+    panelClick = function(message, sender, sendResponse) {
+      if (sender.tab.id === tabs[0].id) {
+        return port.postMessage({
+          name: "panelClick",
+          key: message.key
+        });
+      }
+    };
+    chrome.tabs.onActivated.addListener(tabChange);
+    chrome.runtime.onMessage.addListener(panelClick);
+    return port.onDisconnect.addListener(function(port) {
+      chrome.contextMenus.removeAll();
+      chrome.runtime.onMessage.removeListener(panelClick);
+      chrome.tabs.onActivated.removeListener(tabChange);
       return delete ports[tabs[0].id];
     });
   });
-  return chrome.tabs.onActivated.addListener(tabChange);
 });
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {

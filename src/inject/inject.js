@@ -42,6 +42,7 @@ init = function() {
       }
     }
     html = "<section id=\"domflags-panel\">\n  <ol>\n    " + elements + "\n  </ol>\n</section>";
+    $('body').append(html);
     return $('#domflags-panel').on('click', 'li', function(event) {
       key = $(this).attr('data-key');
       return chrome.runtime.sendMessage({

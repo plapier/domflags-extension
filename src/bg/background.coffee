@@ -24,42 +24,33 @@ ports = []
 chrome.runtime.onConnect.addListener (port) ->
   return if port.name isnt "devtools"
 
-  port.onMessage.addListener (msg) ->
-    chrome.tabs.query
-      lastFocusedWindow: true
-      active: true
-    , (tabs) ->
-      ## Create array of tabs with open ports
-      ports[tabs[0].id] = port: port, portId: port.portId_, tab: tabs[0].id
-      tabPort = ports[tabs[0].id].port
+  chrome.tabs.query lastFocusedWindow: true, active: true, (tabs) ->
+    ## Create array of tabs with open ports
+    ports[tabs[0].id] = port: port, portId: port.portId_, tab: tabs[0].id
+    tabPort = ports[tabs[0].id].port
+
+    port.onMessage.addListener (msg) ->
       requestDomFlags(tabs, tabPort)
 
-  tabChange = ->
-    chrome.tabs.query
-      lastFocusedWindow: true
-      active: true
-    , (tabs) ->
-      if ports[tabs[0].id]
-        tabPort = ports[tabs[0].id].port
+    tabChange = ->
+      if tabPort
         requestDomFlags(tabs, tabPort)
 
-  port.onDisconnect.addListener (port) ->
-    chrome.contextMenus.removeAll()
-    chrome.tabs.onActivated.removeListener(tabChange)
-    chrome.tabs.query
-      lastFocusedWindow: true
-      active: true
-    , (tabs) ->
+    ## When Panel in DOM is clicked, send message to devtools
+    panelClick = (message, sender, sendResponse) ->
+      if sender.tab.id == tabs[0].id
+        port.postMessage
+          name: "panelClick"
+          key: message.key
+
+    chrome.tabs.onActivated.addListener(tabChange)
+    chrome.runtime.onMessage.addListener(panelClick)
+
+    port.onDisconnect.addListener (port) ->
+      chrome.contextMenus.removeAll()
+      chrome.runtime.onMessage.removeListener(panelClick)
+      chrome.tabs.onActivated.removeListener(tabChange)
       delete ports[tabs[0].id]
-
-  chrome.tabs.onActivated.addListener(tabChange)
-
-  # chrome.runtime.onMessage.addListener(panelClick)
-  # chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
-    # console.log message
-    # port.postMessage
-      # name: "panelClick"
-      # key: message.key
 
 # Run when Tab becomes active
 chrome.tabs.onActivated.addListener (activeInfo) ->

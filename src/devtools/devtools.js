@@ -25,7 +25,6 @@ port.postMessage({
 });
 
 port.onMessage.addListener(function(msg) {
-  console.log(msg);
   if (msg.name === "contextMenuClick" || "panelClick") {
     return showDomFlag(msg.key);
   }

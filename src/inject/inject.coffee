@@ -17,14 +17,10 @@ init = ->
         domString = domArray.join(' ')
         flagElements.push(domString)
 
-    # chrome.runtime.sendMessage
-      # flags: flagElements
-
     ## Receive request for flags. Send flags to background.js
     chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
       if message is "Give me domflags"
         sendResponse flags: flagElements
-
 
     elements = ""
     for own key, value of flagElements
@@ -40,11 +36,9 @@ init = ->
             </section>
             """
 
-    # $('body').append html
+    $('body').append html
     $('#domflags-panel').on 'click', 'li', (event) ->
       key = $(this).attr('data-key')
       chrome.runtime.sendMessage
         name: "panelClick"
         key: key
-
-
