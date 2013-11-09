@@ -41,7 +41,7 @@ init = function() {
         elements = "" + elements + " " + el;
       }
     }
-    html = "<section id=\"domflags-panel\">\n  <ol>\n    " + elements + "\n  </ol>\n</section>";
+    html = "<section id=\"domflags-panel\">\n<header>DOMFLAGS</header>\n  <ol>\n    " + elements + "\n  </ol>\n</section>";
     $('body').append(html);
     return $('#domflags-panel').on('click', 'li', function(event) {
       key = $(this).attr('data-key');

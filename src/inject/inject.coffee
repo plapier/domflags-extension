@@ -30,6 +30,7 @@ init = ->
 
     html =  """
             <section id="domflags-panel">
+            <header>DOMFLAGS</header>
               <ol>
                 #{elements}
               </ol>

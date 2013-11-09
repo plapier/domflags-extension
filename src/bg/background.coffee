@@ -24,14 +24,13 @@ ports = []
 chrome.runtime.onConnect.addListener (port) ->
   return if port.name isnt "devtools"
 
-  chrome.tabs.query lastFocusedWindow: true, active: true, (tabs) ->
+  console.log "OnConnect"
+
+  chrome.tabs.query currentWindow: true, active: true, (tabs) ->
     ## Create array of tabs with open ports
     tabId = tabs[0].id
     ports[tabId] = port: port, portId: port.portId_, tab: tabId
     tabPort = ports[tabId].port
-
-    port.onMessage.addListener (msg) ->
-      requestDomFlags(tabId, tabPort)
 
     tabChange = ->
       if tabPort
@@ -52,6 +51,14 @@ chrome.runtime.onConnect.addListener (port) ->
       chrome.runtime.onMessage.removeListener(panelClick)
       chrome.tabs.onActivated.removeListener(tabChange)
       delete ports[tabId]
+
+  # Create contextMenu when devtools opens
+  port.onMessage.addListener (msg) ->
+    chrome.tabs.query currentWindow: true, active: true, (tabs) ->
+      tabId = tabs[0].id
+      tabPort = ports[tabId].port
+      chrome.contextMenus.removeAll()
+      requestDomFlags(tabId, tabPort)
 
 # Run when Tab becomes active
 chrome.tabs.onActivated.addListener (activeInfo) ->

@@ -41,8 +41,9 @@ chrome.runtime.onConnect.addListener(function(port) {
   if (port.name !== "devtools") {
     return;
   }
-  return chrome.tabs.query({
-    lastFocusedWindow: true,
+  console.log("OnConnect");
+  chrome.tabs.query({
+    currentWindow: true,
     active: true
   }, function(tabs) {
     var panelClick, tabChange, tabId, tabPort;
@@ -53,9 +54,6 @@ chrome.runtime.onConnect.addListener(function(port) {
       tab: tabId
     };
     tabPort = ports[tabId].port;
-    port.onMessage.addListener(function(msg) {
-      return requestDomFlags(tabId, tabPort);
-    });
     tabChange = function() {
       if (tabPort) {
         return requestDomFlags(tabId, tabPort);
@@ -76,6 +74,18 @@ chrome.runtime.onConnect.addListener(function(port) {
       chrome.runtime.onMessage.removeListener(panelClick);
       chrome.tabs.onActivated.removeListener(tabChange);
       return delete ports[tabId];
+    });
+  });
+  return port.onMessage.addListener(function(msg) {
+    return chrome.tabs.query({
+      currentWindow: true,
+      active: true
+    }, function(tabs) {
+      var tabId, tabPort;
+      tabId = tabs[0].id;
+      tabPort = ports[tabId].port;
+      chrome.contextMenus.removeAll();
+      return requestDomFlags(tabId, tabPort);
     });
   });
 });
