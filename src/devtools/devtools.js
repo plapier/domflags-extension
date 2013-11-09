@@ -8,7 +8,7 @@ showDomFlag = function(key) {
 chrome.devtools.network.onRequestFinished.addListener(function(request) {
   if (request) {
     port.postMessage({
-      msg: "connected"
+      msg: "refreshed"
     });
     return showDomFlag(0);
   }

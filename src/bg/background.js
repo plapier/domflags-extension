@@ -29,7 +29,9 @@ updateContextMenus = function(flags, port) {
 
 requestDomFlags = function(tabId, port) {
   return chrome.tabs.sendMessage(tabId, "Give me domflags", function(response) {
+    console.log("Give me domflags");
     if (response) {
+      console.log(response);
       return updateContextMenus(response.flags, port);
     }
   });
@@ -41,7 +43,6 @@ chrome.runtime.onConnect.addListener(function(port) {
   if (port.name !== "devtools") {
     return;
   }
-  console.log("OnConnect");
   chrome.tabs.query({
     currentWindow: true,
     active: true
@@ -54,8 +55,9 @@ chrome.runtime.onConnect.addListener(function(port) {
       tab: tabId
     };
     tabPort = ports[tabId].port;
-    tabChange = function() {
-      if (tabPort) {
+    tabChange = function(activeInfo) {
+      chrome.contextMenus.removeAll();
+      if (activeInfo.tabId === tabId) {
         return requestDomFlags(tabId, tabPort);
       }
     };
@@ -88,8 +90,4 @@ chrome.runtime.onConnect.addListener(function(port) {
       return requestDomFlags(tabId, tabPort);
     });
   });
-});
-
-chrome.tabs.onActivated.addListener(function(activeInfo) {
-  return chrome.contextMenus.removeAll();
 });

@@ -19,6 +19,7 @@ init = ->
 
     ## Receive request for flags. Send flags to background.js
     chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
+      console.log message
       if message is "Give me domflags"
         sendResponse flags: flagElements
 

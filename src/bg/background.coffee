@@ -17,14 +17,14 @@ updateContextMenus = (flags, port) ->
 
 requestDomFlags = (tabId, port) ->
   chrome.tabs.sendMessage tabId, "Give me domflags" , (response) ->
+    console.log "Give me domflags"
     if response
+      console.log response
       updateContextMenus(response.flags, port)
 
 ports = []
 chrome.runtime.onConnect.addListener (port) ->
   return if port.name isnt "devtools"
-
-  console.log "OnConnect"
 
   chrome.tabs.query currentWindow: true, active: true, (tabs) ->
     ## Create array of tabs with open ports
@@ -32,8 +32,9 @@ chrome.runtime.onConnect.addListener (port) ->
     ports[tabId] = port: port, portId: port.portId_, tab: tabId
     tabPort = ports[tabId].port
 
-    tabChange = ->
-      if tabPort
+    tabChange = (activeInfo) ->
+      chrome.contextMenus.removeAll()
+      if activeInfo.tabId == tabId
         requestDomFlags(tabId, tabPort)
 
     ## When button in Tab is clicked, send message to devtools
@@ -59,7 +60,3 @@ chrome.runtime.onConnect.addListener (port) ->
       tabPort = ports[tabId].port
       chrome.contextMenus.removeAll()
       requestDomFlags(tabId, tabPort)
-
-# Run when Tab becomes active
-chrome.tabs.onActivated.addListener (activeInfo) ->
-  chrome.contextMenus.removeAll()
