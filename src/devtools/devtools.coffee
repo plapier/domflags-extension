@@ -3,12 +3,6 @@
 showDomFlag = (key) ->
   chrome.devtools.inspectedWindow.eval "inspect($$('[domflag]')[#{key}])"
 
-## Select first domflag on pagerefresh
-chrome.devtools.network.onRequestFinished.addListener (request) ->
-  if request
-    port.postMessage(msg: "refreshed")
-    showDomFlag(0)
-
 showDomFlag(0)
 
 ##################

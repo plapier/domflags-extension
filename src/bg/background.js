@@ -29,9 +29,7 @@ updateContextMenus = function(flags, port) {
 
 requestDomFlags = function(tabId, port) {
   return chrome.tabs.sendMessage(tabId, "Give me domflags", function(response) {
-    console.log("Give me domflags");
     if (response) {
-      console.log(response);
       return updateContextMenus(response.flags, port);
     }
   });
@@ -47,7 +45,7 @@ chrome.runtime.onConnect.addListener(function(port) {
     currentWindow: true,
     active: true
   }, function(tabs) {
-    var panelClick, tabChange, tabId, tabPort;
+    var contentScript, tabChange, tabId, tabPort;
     tabId = tabs[0].id;
     ports[tabId] = {
       port: port,
@@ -61,19 +59,23 @@ chrome.runtime.onConnect.addListener(function(port) {
         return requestDomFlags(tabId, tabPort);
       }
     };
-    panelClick = function(message, sender, sendResponse) {
+    contentScript = function(message, sender, sendResponse) {
       if (sender.tab.id === tabId) {
-        return port.postMessage({
-          name: "panelClick",
-          key: message.key
-        });
+        if (message.name === 'panelClick') {
+          return port.postMessage({
+            name: 'panelClick',
+            key: message.key
+          });
+        } else if (message.name === 'pageReloaded') {
+          return requestDomFlags(tabId, tabPort);
+        }
       }
     };
     chrome.tabs.onActivated.addListener(tabChange);
-    chrome.runtime.onMessage.addListener(panelClick);
+    chrome.runtime.onMessage.addListener(contentScript);
     return port.onDisconnect.addListener(function(port) {
       chrome.contextMenus.removeAll();
-      chrome.runtime.onMessage.removeListener(panelClick);
+      chrome.runtime.onMessage.removeListener(contentScript);
       chrome.tabs.onActivated.removeListener(tabChange);
       return delete ports[tabId];
     });

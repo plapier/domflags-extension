@@ -5,15 +5,6 @@ showDomFlag = function(key) {
   return chrome.devtools.inspectedWindow["eval"]("inspect($$('[domflag]')[" + key + "])");
 };
 
-chrome.devtools.network.onRequestFinished.addListener(function(request) {
-  if (request) {
-    port.postMessage({
-      msg: "refreshed"
-    });
-    return showDomFlag(0);
-  }
-});
-
 showDomFlag(0);
 
 port = chrome.runtime.connect({

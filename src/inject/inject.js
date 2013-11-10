@@ -26,7 +26,6 @@ init = function() {
       }
     }
     chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-      console.log(message);
       if (message === "Give me domflags") {
         return sendResponse({
           flags: flagElements
@@ -44,12 +43,15 @@ init = function() {
     }
     html = "<section id=\"domflags-panel\">\n<header>DOMFLAGS</header>\n  <ol>\n    " + elements + "\n  </ol>\n</section>";
     $('body').append(html);
-    return $('#domflags-panel').on('click', 'li', function(event) {
+    $('#domflags-panel').on('click', 'li', function(event) {
       key = $(this).attr('data-key');
       return chrome.runtime.sendMessage({
         name: "panelClick",
         key: key
       });
+    });
+    return chrome.runtime.sendMessage({
+      name: "pageReloaded"
     });
   }
 };

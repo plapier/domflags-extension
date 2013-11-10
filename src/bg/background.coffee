@@ -17,9 +17,7 @@ updateContextMenus = (flags, port) ->
 
 requestDomFlags = (tabId, port) ->
   chrome.tabs.sendMessage tabId, "Give me domflags" , (response) ->
-    console.log "Give me domflags"
     if response
-      console.log response
       updateContextMenus(response.flags, port)
 
 ports = []
@@ -38,18 +36,22 @@ chrome.runtime.onConnect.addListener (port) ->
         requestDomFlags(tabId, tabPort)
 
     ## When button in Tab is clicked, send message to devtools
-    panelClick = (message, sender, sendResponse) ->
+    contentScript = (message, sender, sendResponse) ->
       if sender.tab.id == tabId
-        port.postMessage
-          name: "panelClick"
-          key: message.key
+        if message.name is 'panelClick'
+            port.postMessage
+              name: 'panelClick'
+              key: message.key
+        else if message.name is 'pageReloaded'
+          requestDomFlags(tabId, tabPort)
+
 
     chrome.tabs.onActivated.addListener(tabChange)
-    chrome.runtime.onMessage.addListener(panelClick)
+    chrome.runtime.onMessage.addListener(contentScript)
 
     port.onDisconnect.addListener (port) ->
       chrome.contextMenus.removeAll()
-      chrome.runtime.onMessage.removeListener(panelClick)
+      chrome.runtime.onMessage.removeListener(contentScript)
       chrome.tabs.onActivated.removeListener(tabChange)
       delete ports[tabId]
 
