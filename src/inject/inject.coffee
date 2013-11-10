@@ -22,27 +22,28 @@ init = ->
       if message is "Give me domflags"
         sendResponse flags: flagElements
 
-    elements = ""
-    for own key, value of flagElements
-      if $.isNumeric(key)
-        el = "<li data-key='#{key}'>#{value}</li>"
-        elements = "#{elements} #{el}"
+        unless $('#domflags-panel').is(":visible") ## prevent duplicates
+          elements = ""
+          for own key, value of flagElements
+            if $.isNumeric(key)
+              el = "<li data-key='#{key}'>#{value}</li>"
+              elements = "#{elements} #{el}"
 
-    html =  """
-            <section id="domflags-panel">
-            <header>DOMFLAGS</header>
-              <ol>
-                #{elements}
-              </ol>
-            </section>
-            """
+          html =  """
+                  <section id="domflags-panel">
+                  <header>DOMFLAGS</header>
+                    <ol>
+                      #{elements}
+                    </ol>
+                  </section>
+                  """
 
-    $('body').append html
-    $('#domflags-panel').on 'click', 'li', (event) ->
-      key = $(this).attr('data-key')
-      chrome.runtime.sendMessage
-        name: "panelClick"
-        key: key
+          $('body').append html
+          $('#domflags-panel').on 'click', 'li', (event) ->
+            key = $(this).attr('data-key')
+            chrome.runtime.sendMessage
+              name: "panelClick"
+              key: key
 
     ## Recreate contextMenu when devtools is open and page is reloaded
     chrome.runtime.sendMessage

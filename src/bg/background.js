@@ -60,15 +60,20 @@ chrome.runtime.onConnect.addListener(function(port) {
       }
     };
     contentScript = function(message, sender, sendResponse) {
-      if (sender.tab.id === tabId) {
-        if (message.name === 'panelClick') {
-          return port.postMessage({
-            name: 'panelClick',
-            key: message.key
-          });
-        } else if (message.name === 'pageReloaded') {
+      if (sender.tab.id !== tabId) {
+        return;
+      }
+      if (message.name === 'panelClick') {
+        return port.postMessage({
+          name: 'panelClick',
+          key: message.key
+        });
+      } else if (message.name === 'pageReloaded') {
+        return chrome.tabs.insertCSS(tabId, {
+          file: "src/inject/inject.css"
+        }, function() {
           return requestDomFlags(tabId, tabPort);
-        }
+        });
       }
     };
     chrome.tabs.onActivated.addListener(tabChange);

@@ -7,7 +7,7 @@ $(document).ready(function() {
 });
 
 init = function() {
-  var $domflags, domArray, domString, domTag, el, elements, flagElements, html, key, value;
+  var $domflags, domArray, domString, domTag, flagElements, key;
   $domflags = $('[domflag]');
   flagElements = [];
   if ($domflags.length > 0) {
@@ -26,29 +26,32 @@ init = function() {
       }
     }
     chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+      var el, elements, html, value;
       if (message === "Give me domflags") {
-        return sendResponse({
+        sendResponse({
           flags: flagElements
         });
+        if (!$('#domflags-panel').is(":visible")) {
+          elements = "";
+          for (key in flagElements) {
+            if (!__hasProp.call(flagElements, key)) continue;
+            value = flagElements[key];
+            if ($.isNumeric(key)) {
+              el = "<li data-key='" + key + "'>" + value + "</li>";
+              elements = "" + elements + " " + el;
+            }
+          }
+          html = "<section id=\"domflags-panel\">\n<header>DOMFLAGS</header>\n  <ol>\n    " + elements + "\n  </ol>\n</section>";
+          $('body').append(html);
+          return $('#domflags-panel').on('click', 'li', function(event) {
+            key = $(this).attr('data-key');
+            return chrome.runtime.sendMessage({
+              name: "panelClick",
+              key: key
+            });
+          });
+        }
       }
-    });
-    elements = "";
-    for (key in flagElements) {
-      if (!__hasProp.call(flagElements, key)) continue;
-      value = flagElements[key];
-      if ($.isNumeric(key)) {
-        el = "<li data-key='" + key + "'>" + value + "</li>";
-        elements = "" + elements + " " + el;
-      }
-    }
-    html = "<section id=\"domflags-panel\">\n<header>DOMFLAGS</header>\n  <ol>\n    " + elements + "\n  </ol>\n</section>";
-    $('body').append(html);
-    $('#domflags-panel').on('click', 'li', function(event) {
-      key = $(this).attr('data-key');
-      return chrome.runtime.sendMessage({
-        name: "panelClick",
-        key: key
-      });
     });
     return chrome.runtime.sendMessage({
       name: "pageReloaded"

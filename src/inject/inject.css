@@ -10,6 +10,8 @@
   position: fixed;
   right: 0;
   width: 264px; }
+  #domflags-panel, #domflags-panel * {
+    all: initial; }
   #domflags-panel header {
     background-image: -webkit-linear-gradient(#efefef, #d9d9d9);
     background-image: linear-gradient(#efefef, #d9d9d9);
@@ -25,24 +27,22 @@
       top: 2px;
       font-size: 11px;
       left: 12px; }
-    #domflags-panel header span.icon {
-      font-size: 9px; }
   #domflags-panel ol {
     background: #d6dde5;
     list-style: none;
     margin: 0;
     padding: 0; }
-    #domflags-panel ol li {
-      cursor: pointer;
-      max-width: 264px;
-      overflow: hidden;
-      padding: 5px 12px;
-      position: relative;
-      text-overflow: ellipsis;
-      white-space: nowrap; }
-      #domflags-panel ol li:hover {
-        color: #fff;
-        background-image: -webkit-linear-gradient(#5c93d5, #1553aa);
-        background-image: linear-gradient(#5c93d5, #1553aa);
-        box-shadow: 0 -1px 0 #4480C8;
-        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.33); }
+  #domflags-panel li {
+    cursor: pointer;
+    max-width: 264px;
+    overflow: hidden;
+    padding: 5px 12px;
+    position: relative;
+    text-overflow: ellipsis;
+    white-space: nowrap; }
+    #domflags-panel li:hover {
+      color: #fff;
+      background-image: -webkit-linear-gradient(#5c93d5, #1553aa);
+      background-image: linear-gradient(#5c93d5, #1553aa);
+      box-shadow: 0 -1px 0 #4480C8;
+      text-shadow: 0 1px 0 rgba(0, 0, 0, 0.33); }

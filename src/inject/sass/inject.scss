@@ -14,6 +14,10 @@ $width: 264px;
   right: 0;
   width: $width;
 
+  &, * {
+    all: initial;
+  }
+
   header {
     background-image: -webkit-linear-gradient(#EFEFEF, #D9D9D9);
     background-image:         linear-gradient(#EFEFEF, #D9D9D9);
@@ -31,9 +35,6 @@ $width: 264px;
       font-size: 11px;
       left: 12px;
     }
-    span.icon {
-      font-size: 9px;
-    }
   }
 
   ol {
@@ -41,23 +42,23 @@ $width: 264px;
     list-style: none;
     margin: 0;
     padding: 0;
+  }
 
-    li {
-      cursor: pointer;
-      max-width: $width;
-      overflow: hidden;
-      padding: 5px 12px;
-      position: relative;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+  li {
+    cursor: pointer;
+    max-width: $width;
+    overflow: hidden;
+    padding: 5px 12px;
+    position: relative;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 
-      &:hover {
-        color: #fff;
-        background-image: -webkit-linear-gradient(#5C93D5, #1553AA);
-        background-image:         linear-gradient(#5C93D5, #1553AA);
-        box-shadow: 0 -1px 0 #4480C8;
-        text-shadow: 0 1px 0 hsla(0, 0%, 0%, 0.33);
-      }
+    &:hover {
+      color: #fff;
+      background-image: -webkit-linear-gradient(#5C93D5, #1553AA);
+      background-image:         linear-gradient(#5C93D5, #1553AA);
+      box-shadow: 0 -1px 0 #4480C8;
+      text-shadow: 0 1px 0 hsla(0, 0%, 0%, 0.33);
     }
   }
 }

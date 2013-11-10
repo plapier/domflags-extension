@@ -37,14 +37,16 @@ chrome.runtime.onConnect.addListener (port) ->
 
     ## When button in Tab is clicked, send message to devtools
     contentScript = (message, sender, sendResponse) ->
-      if sender.tab.id == tabId
-        if message.name is 'panelClick'
-            port.postMessage
-              name: 'panelClick'
-              key: message.key
-        else if message.name is 'pageReloaded'
-          requestDomFlags(tabId, tabPort)
+      return if sender.tab.id isnt tabId
 
+      if message.name is 'panelClick'
+        port.postMessage
+          name: 'panelClick'
+          key: message.key
+
+      else if message.name is 'pageReloaded'
+        chrome.tabs.insertCSS tabId, file: "src/inject/inject.css", ->
+          requestDomFlags(tabId, tabPort)
 
     chrome.tabs.onActivated.addListener(tabChange)
     chrome.runtime.onMessage.addListener(contentScript)
@@ -60,5 +62,6 @@ chrome.runtime.onConnect.addListener (port) ->
     chrome.tabs.query currentWindow: true, active: true, (tabs) ->
       tabId = tabs[0].id
       tabPort = ports[tabId].port
+
       chrome.contextMenus.removeAll()
       requestDomFlags(tabId, tabPort)

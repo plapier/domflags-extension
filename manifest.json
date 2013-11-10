@@ -11,7 +11,7 @@
     "128": "icons/icon128.png"
   },
   "default_locale": "en",
-  "permissions": [ "tabs", "contextMenus" ],
+  "permissions": [ "tabs", "activeTab", "contextMenus", "file://*/*" ],
   "background": {
     "persistent": true,
     "scripts": [
