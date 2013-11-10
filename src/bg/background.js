@@ -81,6 +81,7 @@ chrome.runtime.onConnect.addListener(function(port) {
     return port.onDisconnect.addListener(function(port) {
       chrome.contextMenus.removeAll();
       chrome.runtime.onMessage.removeListener(contentScript);
+      chrome.tabs.sendMessage(tabId, "Remove panel");
       chrome.tabs.onActivated.removeListener(tabChange);
       return delete ports[tabId];
     });

@@ -27,7 +27,9 @@ init = function() {
     }
     chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
       var el, elements, html, value;
-      if (message === "Give me domflags") {
+      if (message === "Remove panel") {
+        return $('#domflags-panel').remove();
+      } else if (message === "Give me domflags") {
         sendResponse({
           flags: flagElements
         });

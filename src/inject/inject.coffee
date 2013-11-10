@@ -19,7 +19,10 @@ init = ->
 
     ## Receive request for flags. Send flags to background.js
     chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
-      if message is "Give me domflags"
+      if message is "Remove panel"
+        $('#domflags-panel').remove()
+
+      else if message is "Give me domflags"
         sendResponse flags: flagElements
 
         unless $('#domflags-panel').is(":visible") ## prevent duplicates

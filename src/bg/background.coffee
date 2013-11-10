@@ -54,6 +54,7 @@ chrome.runtime.onConnect.addListener (port) ->
     port.onDisconnect.addListener (port) ->
       chrome.contextMenus.removeAll()
       chrome.runtime.onMessage.removeListener(contentScript)
+      chrome.tabs.sendMessage tabId, "Remove panel"
       chrome.tabs.onActivated.removeListener(tabChange)
       delete ports[tabId]
 
