@@ -26,7 +26,7 @@ init = function() {
       }
     }
     chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-      var el, elements, html, value;
+      var $domPanel, el, elements, html, value;
       if (message === "Remove panel") {
         return $('#domflags-panel').remove();
       } else if (message === "Give me domflags") {
@@ -43,14 +43,26 @@ init = function() {
               elements = "" + elements + " " + el;
             }
           }
-          html = "<section id=\"domflags-panel\">\n<header>DOMFLAGS</header>\n  <ol>\n    " + elements + "\n  </ol>\n</section>";
+          html = "<section id=\"domflags-panel\" class=\"opened\">\n<header>DOMFLAGS</header>\n  <ol>\n    " + elements + "\n  </ol>\n</section>";
           $('body').append(html);
-          return $('#domflags-panel').on('click', 'li', function(event) {
+          $domPanel = $('#domflags-panel');
+          $domPanel.on('click', 'li', function(event) {
             key = $(this).attr('data-key');
             return chrome.runtime.sendMessage({
               name: "panelClick",
               key: key
             });
+          });
+          return $domPanel.on('click', 'header', function(event) {
+            var listHeight;
+            if ($domPanel.hasClass('opened')) {
+              listHeight = $domPanel.find('ol').outerHeight() + 1;
+              $domPanel.removeClass('opened').addClass('closed');
+              return $domPanel.css('transform', "translateY(" + listHeight + "px)");
+            } else if ($domPanel.hasClass('closed')) {
+              $domPanel.removeClass('closed').addClass('opened');
+              return $domPanel.css('transform', "translateY(0px)");
+            }
           });
         }
       }

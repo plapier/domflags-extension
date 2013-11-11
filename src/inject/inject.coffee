@@ -33,7 +33,7 @@ init = ->
               elements = "#{elements} #{el}"
 
           html =  """
-                  <section id="domflags-panel">
+                  <section id="domflags-panel" class="opened">
                   <header>DOMFLAGS</header>
                     <ol>
                       #{elements}
@@ -42,11 +42,22 @@ init = ->
                   """
 
           $('body').append html
-          $('#domflags-panel').on 'click', 'li', (event) ->
+          $domPanel = $('#domflags-panel')
+          $domPanel.on 'click', 'li', (event) ->
             key = $(this).attr('data-key')
             chrome.runtime.sendMessage
               name: "panelClick"
               key: key
+
+          $domPanel.on 'click', 'header', (event) ->
+            if $domPanel.hasClass('opened')
+              listHeight = $domPanel.find('ol').outerHeight() + 1;
+              $domPanel.removeClass('opened').addClass('closed')
+              $domPanel.css('transform', "translateY(#{listHeight}px)")
+
+            else if $domPanel.hasClass('closed')
+              $domPanel.removeClass('closed').addClass('opened')
+              $domPanel.css('transform', "translateY(0px)")
 
     ## Recreate contextMenu when devtools is open and page is reloaded
     chrome.runtime.sendMessage
