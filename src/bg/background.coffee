@@ -41,12 +41,18 @@ chrome.runtime.onConnect.addListener (port) ->
 
       if message.name is 'panelClick'
         port.postMessage
-          name: 'panelClick'
+          name: message.name
           key: message.key
+
 
       else if message.name is 'pageReloaded'
         chrome.tabs.insertCSS tabId, file: "src/inject/inject.css", ->
           requestDomFlags(tabId, tabPort)
+
+        ## Inspect first domflag
+        port.postMessage
+          name: message.name
+          key: 0
 
     chrome.tabs.onActivated.addListener(tabChange)
     chrome.runtime.onMessage.addListener(contentScript)

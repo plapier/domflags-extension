@@ -65,14 +65,18 @@ chrome.runtime.onConnect.addListener(function(port) {
       }
       if (message.name === 'panelClick') {
         return port.postMessage({
-          name: 'panelClick',
+          name: message.name,
           key: message.key
         });
       } else if (message.name === 'pageReloaded') {
-        return chrome.tabs.insertCSS(tabId, {
+        chrome.tabs.insertCSS(tabId, {
           file: "src/inject/inject.css"
         }, function() {
           return requestDomFlags(tabId, tabPort);
+        });
+        return port.postMessage({
+          name: message.name,
+          key: 0
         });
       }
     };

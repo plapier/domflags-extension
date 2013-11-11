@@ -12,5 +12,5 @@ showDomFlag(0)
 port = chrome.runtime.connect(name: "devtools")
 port.postMessage(msg: "initiate")
 port.onMessage.addListener (msg) ->
-  if msg.name is "contextMenuClick" or "panelClick"
+  if msg.name is "contextMenuClick" or "panelClick" or "pageReloaded"
     showDomFlag(msg.key)
