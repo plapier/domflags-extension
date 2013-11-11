@@ -1,4 +1,8 @@
 #### CONTENT SCRIPT
+# panelMain = document.register("panel-main")
+# panelHeader = document.register("panel-header")
+# panelOl = document.register("panel-ol")
+# panelLi = document.register("panel-li")
 
 $(document).ready ->
   init()
@@ -6,6 +10,7 @@ $(document).ready ->
 init = ->
   $domflags = $('[domflag]')
   flagElements = []
+
   if $domflags.length > 0
     for own key of $domflags
       if $.isNumeric(key)
@@ -20,38 +25,38 @@ init = ->
     ## Receive request for flags. Send flags to background.js
     chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
       if message is "Remove panel"
-        $('#domflags-panel').remove()
+        $('#domflags').remove()
 
       else if message is "Give me domflags"
         sendResponse flags: flagElements
 
-        unless $('#domflags-panel').is(":visible") ## prevent duplicates
+        unless $('#domflags').is(":visible") ## prevent duplicates
           elements = ""
           for own key, value of flagElements
             if $.isNumeric(key)
-              el = "<li data-key='#{key}'>#{value}</li>"
+              el = "<panel-li data-key='#{key}'>#{value}</panel-li>"
               elements = "#{elements} #{el}"
 
           html =  """
-                  <section id="domflags-panel" class="opened">
-                  <header>DOMFLAGS</header>
-                    <ol>
+                  <panel-main id="domflags" class="opened">
+                  <panel-header id="header">DOMFLAGS</panel-header>
+                    <panel-ol>
                       #{elements}
-                    </ol>
-                  </section>
+                    </panel-ol>
+                  </panel-main>
                   """
 
           $('body').append html
-          $domPanel = $('#domflags-panel')
-          $domPanel.on 'click', 'li', (event) ->
+          $domPanel = $('#domflags')
+          $domPanel.on 'click', 'panel-li', (event) ->
             key = $(this).attr('data-key')
             chrome.runtime.sendMessage
               name: "panelClick"
               key: key
 
-          $domPanel.on 'click', 'header', (event) ->
+          $domPanel.on 'click', 'panel-header', (event) ->
             if $domPanel.hasClass('opened')
-              listHeight = $domPanel.find('ol').outerHeight() + 1;
+              listHeight = $domPanel.find('panel-ol').outerHeight() + 1;
               $domPanel.removeClass('opened').addClass('closed')
               $domPanel.css('transform', "translateY(#{listHeight}px)")
 
@@ -60,5 +65,4 @@ init = ->
               $domPanel.css('transform', "translateY(0px)")
 
     ## Recreate contextMenu when devtools is open and page is reloaded
-    chrome.runtime.sendMessage
-      name: "pageReloaded"
+    chrome.runtime.sendMessage name: "pageReloaded"

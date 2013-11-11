@@ -28,35 +28,35 @@ init = function() {
     chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
       var $domPanel, el, elements, html, value;
       if (message === "Remove panel") {
-        return $('#domflags-panel').remove();
+        return $('#domflags').remove();
       } else if (message === "Give me domflags") {
         sendResponse({
           flags: flagElements
         });
-        if (!$('#domflags-panel').is(":visible")) {
+        if (!$('#domflags').is(":visible")) {
           elements = "";
           for (key in flagElements) {
             if (!__hasProp.call(flagElements, key)) continue;
             value = flagElements[key];
             if ($.isNumeric(key)) {
-              el = "<li data-key='" + key + "'>" + value + "</li>";
+              el = "<panel-li data-key='" + key + "'>" + value + "</panel-li>";
               elements = "" + elements + " " + el;
             }
           }
-          html = "<section id=\"domflags-panel\" class=\"opened\">\n<header>DOMFLAGS</header>\n  <ol>\n    " + elements + "\n  </ol>\n</section>";
+          html = "<panel-main id=\"domflags\" class=\"opened\">\n<panel-header id=\"header\">DOMFLAGS</panel-header>\n  <panel-ol>\n    " + elements + "\n  </panel-ol>\n</panel-main>";
           $('body').append(html);
-          $domPanel = $('#domflags-panel');
-          $domPanel.on('click', 'li', function(event) {
+          $domPanel = $('#domflags');
+          $domPanel.on('click', 'panel-li', function(event) {
             key = $(this).attr('data-key');
             return chrome.runtime.sendMessage({
               name: "panelClick",
               key: key
             });
           });
-          return $domPanel.on('click', 'header', function(event) {
+          return $domPanel.on('click', 'panel-header', function(event) {
             var listHeight;
             if ($domPanel.hasClass('opened')) {
-              listHeight = $domPanel.find('ol').outerHeight() + 1;
+              listHeight = $domPanel.find('panel-ol').outerHeight() + 1;
               $domPanel.removeClass('opened').addClass('closed');
               return $domPanel.css('transform', "translateY(" + listHeight + "px)");
             } else if ($domPanel.hasClass('closed')) {
