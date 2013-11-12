@@ -1,24 +1,26 @@
 #domflags {
   border-radius: 2px 0 0 0;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
   bottom: 0;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
   color: #333;
   display: block;
   font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
   font-size: 10px;
+  line-height: 1.2em;
   overflow: hidden;
   position: fixed;
   right: 0;
-  width: 264px;
   -webkit-transition: all 0.2s cubic-bezier(0.39, 0.575, 0.565, 1);
-  transition: all 0.2s cubic-bezier(0.39, 0.575, 0.565, 1); }
+  transition: all 0.2s cubic-bezier(0.39, 0.575, 0.565, 1);
+  width: 264px;
+  -webkit-font-smoothing: subpixel-antialiased; }
   #domflags.opened:hover {
     cursor: s-resize; }
   #domflags.closed:hover {
     cursor: n-resize; }
   #domflags, #domflags * {
     all: initial; }
-  #domflags panel-header {
+  #domflags domflag-header {
     background-image: -webkit-linear-gradient(#efefef, #d9d9d9);
     background-image: linear-gradient(#efefef, #d9d9d9);
     border-bottom: 1px solid #969696;
@@ -28,20 +30,20 @@
     padding: 3px 12px 3px 24px;
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
     position: relative; }
-    #domflags panel-header:before {
+    #domflags domflag-header:before {
       content: '\2691';
       position: absolute;
       top: 2px;
       font-size: 11px;
       left: 12px; }
-  #domflags panel-ol {
+  #domflags domflag-ol {
     background: #d6dde5;
     display: block;
     list-style: none;
     margin: 0;
     padding: 0;
     padding-bottom: 2px; }
-  #domflags panel-li {
+  #domflags domflag-li {
     cursor: pointer;
     display: block;
     max-width: 264px;
@@ -50,7 +52,7 @@
     position: relative;
     text-overflow: ellipsis;
     white-space: nowrap; }
-    #domflags panel-li:hover {
+    #domflags domflag-li:hover {
       color: #fff;
       background-image: -webkit-linear-gradient(#5c93d5, #1553aa);
       background-image: linear-gradient(#5c93d5, #1553aa);

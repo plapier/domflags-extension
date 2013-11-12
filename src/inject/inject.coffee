@@ -1,9 +1,4 @@
 #### CONTENT SCRIPT
-# panelMain = document.register("panel-main")
-# panelHeader = document.register("panel-header")
-# panelOl = document.register("panel-ol")
-# panelLi = document.register("panel-li")
-
 $(document).ready ->
   init()
 
@@ -34,29 +29,29 @@ init = ->
           elements = ""
           for own key, value of flagElements
             if $.isNumeric(key)
-              el = "<panel-li data-key='#{key}'>#{value}</panel-li>"
+              el = "<domflag-li data-key='#{key}'>#{value}</domflag-li>"
               elements = "#{elements} #{el}"
 
           html =  """
-                  <panel-main id="domflags" class="opened">
-                  <panel-header id="header">DOMFLAGS</panel-header>
-                    <panel-ol>
+                  <domflag-panel id="domflags" class="opened">
+                    <domflag-header id="header">DOMFLAGS</domflag-header>
+                    <domflag-ol>
                       #{elements}
-                    </panel-ol>
-                  </panel-main>
+                    </domflag-ol>
+                  </domflag-panel>
                   """
 
           $('body').append html
           $domPanel = $('#domflags')
-          $domPanel.on 'click', 'panel-li', (event) ->
+          $domPanel.on 'click', 'domflag-li', (event) ->
             key = $(this).attr('data-key')
             chrome.runtime.sendMessage
               name: "panelClick"
               key: key
 
-          $domPanel.on 'click', 'panel-header', (event) ->
+          $domPanel.on 'click', 'domflag-header', (event) ->
             if $domPanel.hasClass('opened')
-              listHeight = $domPanel.find('panel-ol').outerHeight() + 1;
+              listHeight = $domPanel.find('domflag-ol').outerHeight() + 1;
               $domPanel.removeClass('opened').addClass('closed')
               $domPanel.css('transform', "translateY(#{listHeight}px)")
 

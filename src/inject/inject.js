@@ -39,24 +39,24 @@ init = function() {
             if (!__hasProp.call(flagElements, key)) continue;
             value = flagElements[key];
             if ($.isNumeric(key)) {
-              el = "<panel-li data-key='" + key + "'>" + value + "</panel-li>";
+              el = "<domflag-li data-key='" + key + "'>" + value + "</domflag-li>";
               elements = "" + elements + " " + el;
             }
           }
-          html = "<panel-main id=\"domflags\" class=\"opened\">\n<panel-header id=\"header\">DOMFLAGS</panel-header>\n  <panel-ol>\n    " + elements + "\n  </panel-ol>\n</panel-main>";
+          html = "<domflag-panel id=\"domflags\" class=\"opened\">\n  <domflag-header id=\"header\">DOMFLAGS</domflag-header>\n  <domflag-ol>\n    " + elements + "\n  </domflag-ol>\n</domflag-panel>";
           $('body').append(html);
           $domPanel = $('#domflags');
-          $domPanel.on('click', 'panel-li', function(event) {
+          $domPanel.on('click', 'domflag-li', function(event) {
             key = $(this).attr('data-key');
             return chrome.runtime.sendMessage({
               name: "panelClick",
               key: key
             });
           });
-          return $domPanel.on('click', 'panel-header', function(event) {
+          return $domPanel.on('click', 'domflag-header', function(event) {
             var listHeight;
             if ($domPanel.hasClass('opened')) {
-              listHeight = $domPanel.find('panel-ol').outerHeight() + 1;
+              listHeight = $domPanel.find('domflag-ol').outerHeight() + 1;
               $domPanel.removeClass('opened').addClass('closed');
               return $domPanel.css('transform', "translateY(" + listHeight + "px)");
             } else if ($domPanel.hasClass('closed')) {

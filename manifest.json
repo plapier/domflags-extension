@@ -1,29 +1,25 @@
 {
-  "name": "Dom Flags",
+  "name": "DomFlags",
   "version": "1.0.0",
   "manifest_version": 2,
-  "description": "Add Flags to the DOM",
+  "description": "Add flags to the DOM using the 'DOMFLAG' attribute for a quick and easy way to inspect multiple elements.",
   "homepage_url": "http://lapier.me",
-  "devtools_page": "src/devtools/devtools.html",
+  "author": "Philip LaPier",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
+
   "default_locale": "en",
   "permissions": [ "tabs", "activeTab", "contextMenus", "file://*/*" ],
+
+  "devtools_page": "src/devtools/devtools.html",
   "background": {
     "persistent": true,
     "scripts": [
       "src/bg/background.js"
     ]
-    // "page": "src/bg/background.html"
-  },
-  "options_page": "src/options/index.html",
-  "page_action": {
-    "default_icon": "icons/icon19.png",
-    "default_title": "page action demo",
-    "default_popup": "src/page_action/page_action.html"
   },
   "content_scripts": [
     {
