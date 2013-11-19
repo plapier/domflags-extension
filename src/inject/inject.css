@@ -1,7 +1,7 @@
 #domflags {
   border-radius: 2px 0 0 0;
   bottom: 0;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 1px #000;
   color: #333;
   display: block;
   font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
@@ -33,7 +33,7 @@
     #domflags domflag-header:before {
       content: '\2691';
       position: absolute;
-      top: 2px;
+      top: 3px;
       font-size: 11px;
       left: 12px; }
   #domflags domflag-ol {
@@ -54,7 +54,6 @@
     white-space: nowrap; }
     #domflags domflag-li:hover {
       color: #fff;
-      background-image: -webkit-linear-gradient(#5c93d5, #1553aa);
-      background-image: linear-gradient(#5c93d5, #1553aa);
-      box-shadow: 0 -1px 0 #4480C8;
+      background-color: #3779d9;
+      box-shadow: 0 -1px 0 #3779d9;
       text-shadow: 0 1px 0 rgba(0, 0, 0, 0.33); }

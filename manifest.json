@@ -6,9 +6,9 @@
   "homepage_url": "http://lapier.me",
   "author": "Philip LaPier",
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "icons/icon16a.png",
+    "48": "icons/icon48a.png",
+    "128": "icons/icon128a.png"
   },
 
   "default_locale": "en",

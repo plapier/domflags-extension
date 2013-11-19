@@ -10,7 +10,7 @@ $ease: cubic-bezier(0.39, 0.575, 0.565, 1); //sine
 #domflags {
   border-radius: 2px 0 0 0;
   bottom: 0;
-  box-shadow: 0 0 0 1px hsla(0, 0%, 0%, 0.25);
+  box-shadow: 0 0 1px #000;
   color: #333;
   display: block;
   font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
@@ -50,7 +50,7 @@ $ease: cubic-bezier(0.39, 0.575, 0.565, 1); //sine
     &:before {
       content:'\2691';
       position: absolute;
-      top: 2px;
+      top: 3px;
       font-size: 11px;
       left: 12px;
     }
@@ -76,10 +76,10 @@ $ease: cubic-bezier(0.39, 0.575, 0.565, 1); //sine
     white-space: nowrap;
 
     &:hover {
+      $bg: #3779D9;
       color: #fff;
-      background-image: -webkit-linear-gradient(#5C93D5, #1553AA);
-      background-image:         linear-gradient(#5C93D5, #1553AA);
-      box-shadow: 0 -1px 0 #4480C8;
+      background-color: $bg;
+      box-shadow: 0 -1px 0 $bg;
       text-shadow: 0 1px 0 hsla(0, 0%, 0%, 0.33);
     }
   }
