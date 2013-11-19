@@ -23,6 +23,7 @@ $ease: cubic-bezier(0.39, 0.575, 0.565, 1); //sine
   transition: all 0.2s $ease;
   width: $width;
   -webkit-font-smoothing: subpixel-antialiased;
+  z-index: 2147483647;
 
   &.opened:hover {
     cursor: s-resize;

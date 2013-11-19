@@ -13,7 +13,8 @@
   -webkit-transition: all 0.2s cubic-bezier(0.39, 0.575, 0.565, 1);
   transition: all 0.2s cubic-bezier(0.39, 0.575, 0.565, 1);
   width: 264px;
-  -webkit-font-smoothing: subpixel-antialiased; }
+  -webkit-font-smoothing: subpixel-antialiased;
+  z-index: 2147483647; }
   #domflags.opened:hover {
     cursor: s-resize; }
   #domflags.closed:hover {
