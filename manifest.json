@@ -10,10 +10,7 @@
     "48": "icons/icon48a.png",
     "128": "icons/icon128a.png"
   },
-
-  "default_locale": "en",
-  "permissions": [ "tabs", "activeTab", "contextMenus", "file://*/*" ],
-
+  "permissions": [ "tabs", "activeTab", "contextMenus" ],
   "devtools_page": "src/devtools/devtools.html",
   "background": {
     "persistent": true,
