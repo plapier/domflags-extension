@@ -3,7 +3,10 @@ var init,
   __hasProp = {}.hasOwnProperty;
 
 $(document).ready(function() {
-  return init();
+  init();
+  return $('body').bind('DOMSubtreeModified', function() {
+    return init();
+  });
 });
 
 init = function() {

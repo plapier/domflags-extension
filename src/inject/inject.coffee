@@ -1,6 +1,8 @@
 #### CONTENT SCRIPT
 $(document).ready ->
   init()
+  $('body').bind 'DOMSubtreeModified', ->
+    init()
 
 init = ->
   $domflags = $('[domflag]')
