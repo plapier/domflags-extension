@@ -27,8 +27,8 @@ updateContextMenus = function(flags, port) {
   }
 };
 
-requestDomFlags = function(tabId, port) {
-  return chrome.tabs.sendMessage(tabId, "Give me domflags", function(response) {
+requestDomFlags = function(message, tabId, port) {
+  return chrome.tabs.sendMessage(tabId, message, function(response) {
     if (response) {
       return updateContextMenus(response.flags, port);
     }
@@ -39,7 +39,7 @@ ports = [];
 
 chrome.runtime.onConnect.addListener(function(port) {
   if (port.name !== "devtools") {
-    return;
+    return false;
   }
   chrome.tabs.query({
     currentWindow: true,
@@ -56,7 +56,7 @@ chrome.runtime.onConnect.addListener(function(port) {
     tabChange = function(activeInfo) {
       chrome.contextMenus.removeAll();
       if (activeInfo.tabId === tabId) {
-        return requestDomFlags(tabId, tabPort);
+        return requestDomFlags("Tab change", tabId, tabPort);
       }
     };
     contentScript = function(message, sender, sendResponse) {
@@ -72,7 +72,7 @@ chrome.runtime.onConnect.addListener(function(port) {
         chrome.tabs.insertCSS(tabId, {
           file: "src/inject/inject.css"
         }, function() {
-          return requestDomFlags(tabId, tabPort);
+          return requestDomFlags("Give me domflags", tabId, tabPort);
         });
         return port.postMessage({
           name: message.name,
@@ -99,7 +99,7 @@ chrome.runtime.onConnect.addListener(function(port) {
       tabId = tabs[0].id;
       tabPort = ports[tabId].port;
       chrome.contextMenus.removeAll();
-      return requestDomFlags(tabId, tabPort);
+      return requestDomFlags("Give me domflags", tabId, tabPort);
     });
   });
 });

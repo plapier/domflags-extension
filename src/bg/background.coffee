@@ -15,14 +15,14 @@ updateContextMenus = (flags, port) ->
         contexts: ['all']
         onclick: onClickHandler
 
-requestDomFlags = (tabId, port) ->
-  chrome.tabs.sendMessage tabId, "Give me domflags" , (response) ->
+requestDomFlags = (message, tabId, port) ->
+  chrome.tabs.sendMessage tabId, message, (response) ->
     if response
       updateContextMenus(response.flags, port)
 
 ports = []
 chrome.runtime.onConnect.addListener (port) ->
-  return if port.name isnt "devtools"
+  return false if port.name isnt "devtools"
 
   chrome.tabs.query currentWindow: true, active: true, (tabs) ->
     ## Create array of tabs with open ports
@@ -33,7 +33,7 @@ chrome.runtime.onConnect.addListener (port) ->
     tabChange = (activeInfo) ->
       chrome.contextMenus.removeAll()
       if activeInfo.tabId == tabId
-        requestDomFlags(tabId, tabPort)
+        requestDomFlags("Tab change", tabId, tabPort)
 
     ## When button in Tab is clicked, send message to devtools
     contentScript = (message, sender, sendResponse) ->
@@ -47,7 +47,7 @@ chrome.runtime.onConnect.addListener (port) ->
 
       else if message.name is 'pageReloaded'
         chrome.tabs.insertCSS tabId, file: "src/inject/inject.css", ->
-          requestDomFlags(tabId, tabPort)
+          requestDomFlags("Give me domflags", tabId, tabPort)
 
         ## Inspect first domflag
         port.postMessage
@@ -71,4 +71,4 @@ chrome.runtime.onConnect.addListener (port) ->
       tabPort = ports[tabId].port
 
       chrome.contextMenus.removeAll()
-      requestDomFlags(tabId, tabPort)
+      requestDomFlags("Give me domflags", tabId, tabPort)
