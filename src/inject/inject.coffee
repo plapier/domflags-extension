@@ -68,7 +68,7 @@ $(document).ready ->
 
     setupDomPanelListeners: ->
       @domflagsPanel.get(0).addEventListener 'click', (event) =>
-        console.log event, event.target.className
+        # console.log event, event.target.className
         if event.target.className is 'domflags-li'
           key = $(event.target).attr('data-key')
           chrome.runtime.sendMessage

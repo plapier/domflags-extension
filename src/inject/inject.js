@@ -85,7 +85,6 @@
         var _this = this;
         return this.domflagsPanel.get(0).addEventListener('click', function(event) {
           var key, listHeight, oldPos, targetPos;
-          console.log(event, event.target.className);
           if (event.target.className === 'domflags-li') {
             key = $(event.target).attr('data-key');
             return chrome.runtime.sendMessage({
