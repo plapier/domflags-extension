@@ -1,4 +1,18 @@
 #### BACKGROUND SCRIPT
+_gaq = _gaq or []
+_gaq.push ["_setAccount", "UA-48965633-1"]
+_gaq.push ["_trackPageview"]
+(->
+  ga = document.createElement("script")
+  ga.type = "text/javascript"
+  ga.async = true
+  ga.src = "https://ssl.google-analytics.com/ga.js"
+  s = document.getElementsByTagName("script")[0]
+  s.parentNode.insertBefore ga, s
+)()
+
+trackEvent = ->
+  _gaq.push ['_trackEvent', 'Domflag', 'clicked']
 
 updateContextMenus = (flags, port) ->
   onClickHandler = (info, tab) ->
@@ -43,7 +57,7 @@ chrome.runtime.onConnect.addListener (port) ->
         port.postMessage
           name: message.name
           key: message.key
-
+        trackEvent()
 
       else if message.name is 'pageReloaded'
         chrome.tabs.insertCSS tabId, file: "src/inject/inject.css", ->

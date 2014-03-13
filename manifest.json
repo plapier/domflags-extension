@@ -2,9 +2,10 @@
   "name": "DomFlags",
   "version": "1.0.0",
   "manifest_version": 2,
-  "description": "Add flags to the DOM using the 'DOMFLAG' attribute for a quick and easy way to inspect multiple elements.",
+  "description": "Use Domflags to save your place in the inspector.",
   "homepage_url": "http://lapier.me",
   "author": "Philip LaPier",
+  "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
   "icons": {
     "16": "icons/icon16a.png",
     "48": "icons/icon48a.png",

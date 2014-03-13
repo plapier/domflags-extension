@@ -1,4 +1,5 @@
 #### CONTENT SCRIPT
+
 $(document).ready ->
   class WatchDOMFlags
     constructor: (domflags) ->
