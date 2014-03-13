@@ -1,27 +1,20 @@
 $background: #D6DDE5;
 $width: 264px;
-// $ease: cubic-bezier(0.25, 0.46, 0.45, 0.94); // quad
-// $ease: cubic-bezier(0.165, 0.84, 0.44, 1); // quart
-// $ease: cubic-bezier(0.23, 1, 0.32, 1); //quint
-$ease: cubic-bezier(0.39, 0.575, 0.565, 1); //sine
-// $ease: cubic-bezier(0.19, 1, 0.22, 1); //expo
-// $ease: cubic-bezier(0.075, 0.82, 0.165, 1); // circ
 
 #domflags-panel {
-  bottom: 0;
   box-shadow: 0 0 1px #000;
   color: #333;
   display: block;
   font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
-  font-size: 10px;
+  font-size: 11px;
+  -webkit-font-smoothing: subpixel-antialiased;
   line-height: 1.2em;
   overflow: hidden;
   position: fixed;
-  -webkit-transition: all 0.2s $ease;
-  transition: all 0.2s $ease;
+  -webkit-transition: all 0.2s ease;
+  transition:         all 0.2s ease;
   width: $width;
-  -webkit-font-smoothing: subpixel-antialiased;
-  z-index: 2147483647;
+  z-index: 2147483647; //max value
 
   &.right {
     right: 0;
@@ -29,8 +22,20 @@ $ease: cubic-bezier(0.39, 0.575, 0.565, 1); //sine
   }
 
   &.left {
-    left: 0;
     border-radius: 0 2px 0 0;
+    left: 0;
+  }
+
+  &.top {
+    top: 0;
+
+    &.right {
+      border-radius: 0 0 0 2px;
+    }
+  }
+
+  &.bottom {
+    bottom: 0;
   }
 
   &.opened:hover {
@@ -46,22 +51,21 @@ $ease: cubic-bezier(0.39, 0.575, 0.565, 1); //sine
   }
 
   .domflags-header {
-    background-image: -webkit-linear-gradient(#EFEFEF, #D9D9D9);
-    background-image:         linear-gradient(#EFEFEF, #D9D9D9);
+    background-image: linear-gradient(#EFEFEF, #D9D9D9);
     border-bottom: 1px solid #969696;
     color: #666;
     display: block;
     font-size: 10px;
     padding: 3px 12px 3px 24px;
-    text-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.5);
     position: relative;
+    text-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.5);
 
     &:before {
       content:'\2691';
-      position: absolute;
-      top: 3px;
       font-size: 11px;
       left: 12px;
+      position: absolute;
+      top: 3px;
     }
   }
 
@@ -79,17 +83,52 @@ $ease: cubic-bezier(0.39, 0.575, 0.565, 1); //sine
     display: block;
     max-width: $width;
     overflow: hidden;
-    padding: 5px 12px;
+    padding: 6px 12px;
     position: relative;
     text-overflow: ellipsis;
     white-space: nowrap;
 
     &:hover {
       $bg: #3779D9;
-      color: #fff;
       background-color: $bg;
       box-shadow: 0 -1px 0 $bg;
+      color: #fff;
       text-shadow: 0 1px 0 hsla(0, 0%, 0%, 0.33);
+    }
+  }
+
+  .domflags-button {
+    $size: 12px;
+    box-shadow: inset 0 0 0 1px hsla(0, 0%, 0%, 0.26);
+    float: left;
+    height: $size;
+    margin-left: 8px;
+    opacity: 0.8;
+    position: absolute;
+    right: 8px;
+    top: 4px;
+    width: $size;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &.left {
+      cursor: w-resize;
+      background-image: linear-gradient(to left,
+                        hsla(0, 0%, 0%, 0.0)    0%,
+                        hsla(0, 0%, 0%, 0.0)   60%,
+                        hsla(0, 0%, 0%, 0.26)  60%,
+                        hsla(0, 0%, 0%, 0.26) 100%);
+    }
+
+    &.right {
+      cursor: e-resize;
+      background-image: linear-gradient(to right,
+                        hsla(0, 0%, 0%, 0.0)    0%,
+                        hsla(0, 0%, 0%, 0.0)   60%,
+                        hsla(0, 0%, 0%, 0.26)  60%,
+                        hsla(0, 0%, 0%, 0.26) 100%);
     }
   }
 }

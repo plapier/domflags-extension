@@ -55,8 +55,9 @@ $(document).ready ->
 
     appendDomflagsPanel: ->
       html =  """
-              <domflags-panel id="domflags-panel" class="left opened">
+              <domflags-panel id="domflags-panel" class="bottom left opened">
                 <domflags-header class="domflags-header">DOMFLAGS</domflags-header>
+                <domflags-button class="domflags-button right"></domflags-button>
                 <domflags-ol class="domflags-ol"></domflags-ol>
               </domflags-panel>
               """
@@ -67,6 +68,7 @@ $(document).ready ->
 
     setupDomPanelListeners: ->
       @domflagsPanel.get(0).addEventListener 'click', (event) =>
+        console.log event, event.target.className
         if event.target.className is 'domflags-li'
           key = $(event.target).attr('data-key')
           chrome.runtime.sendMessage
@@ -82,6 +84,15 @@ $(document).ready ->
           else if @domflagsPanel.hasClass('closed')
             @domflagsPanel.removeClass('closed').addClass('opened')
             @domflagsPanel.css('transform', "translateY(0px)")
+
+        else if event.target.classList[0] is 'domflags-button'
+          targetPos = event.target.classList[1]
+
+          if      targetPos is "left"  then oldPos = "right"
+          else if targetPos is "right" then oldPos = "left"
+
+          @domflagsPanel.removeClass(oldPos).addClass(targetPos)
+          $(event.target).removeClass(targetPos).addClass(oldPos)
 
 
     elToString: (node) ->
