@@ -2,14 +2,14 @@
   "name": "DomFlags",
   "version": "1.0.0",
   "manifest_version": 2,
-  "description": "Use Domflags to save your place in the inspector.",
+  "description": "Create shortcuts to DOM elements you wish to inspect in the DevTools."
   "homepage_url": "http://lapier.me",
   "author": "Philip LaPier",
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
   "icons": {
-    "16": "icons/icon16a.png",
-    "48": "icons/icon48a.png",
-    "128": "icons/icon128a.png"
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   },
   "permissions": [ "tabs", "activeTab", "contextMenus" ],
   "devtools_page": "src/devtools/devtools.html",
