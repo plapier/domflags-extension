@@ -2,7 +2,7 @@
   "name": "DomFlags",
   "version": "1.0.2",
   "manifest_version": 2,
-  "description": "Create shortcuts to DOM elements you wish to inspect in the DevTools.",
+  "description": "A debugger for hard-to-inspect DOM elements",
   "homepage_url": "http://lapier.me",
   "author": "Philip LaPier",
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
