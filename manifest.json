@@ -1,8 +1,8 @@
 {
   "name": "DomFlags",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "manifest_version": 2,
-  "description": "Create shortcuts to DOM elements you wish to inspect in the DevTools."
+  "description": "Create shortcuts to DOM elements you wish to inspect in the DevTools.",
   "homepage_url": "http://lapier.me",
   "author": "Philip LaPier",
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
