@@ -11,6 +11,7 @@ $width: 264px;
   line-height: 1.2em;
   overflow: hidden;
   position: fixed;
+  text-align: left;
   -webkit-transition: all 0.2s ease;
   transition:         all 0.2s ease;
   width: $width;
@@ -65,7 +66,7 @@ $width: 264px;
       font-size: 11px;
       left: 12px;
       position: absolute;
-      top: 3px;
+      top: 1px;
     }
   }
 

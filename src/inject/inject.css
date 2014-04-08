@@ -8,6 +8,7 @@
   line-height: 1.2em;
   overflow: hidden;
   position: fixed;
+  text-align: left;
   -webkit-transition: all 0.2s ease;
   transition: all 0.2s ease;
   width: 264px;
@@ -44,7 +45,7 @@
       font-size: 11px;
       left: 12px;
       position: absolute;
-      top: 3px; }
+      top: 1px; }
   #domflags-panel .domflags-ol {
     background: #d6dde5;
     display: block;
