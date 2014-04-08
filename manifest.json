@@ -1,6 +1,6 @@
 {
   "name": "DomFlags",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "manifest_version": 2,
   "description": "Create shortcuts to DOM elements you wish to inspect in the DevTools.",
   "homepage_url": "http://lapier.me",
