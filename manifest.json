@@ -1,8 +1,8 @@
 {
   "name": "DomFlags",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "manifest_version": 2,
-  "description": "A debugger for hard-to-inspect DOM elements",
+  "description": "Bookmarks for deeply nested dom elements",
   "homepage_url": "http://lapier.me",
   "author": "Philip LaPier",
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
@@ -11,8 +11,17 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": [ "tabs", "activeTab", "contextMenus" ],
+  "permissions": [ "tabs", "activeTab", "contextMenus", "storage" ],
   "devtools_page": "src/devtools/devtools.html",
+  "options_page": "src/options/options.html",
+  "browser_action": {
+    "default_icon": {
+      "19": "icons/icon19.png",
+      "38": "icons/icon38.png"
+    },
+    "default_title": "DomFlags Settings",
+    "default_popup": "src/options/options.html"
+  },
   "background": {
     "persistent": true,
     "scripts": [

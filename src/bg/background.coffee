@@ -49,6 +49,13 @@ chrome.runtime.onConnect.addListener (port) ->
       if activeInfo.tabId == tabId
         requestDomFlags("Tab change", tabId, tabPort)
 
+    ## Workaround for auto-inspect first flag when devtools first opens
+    chrome.storage.sync.get autoInspectOpen: true, (items) ->
+      if items.autoInspectOpen
+        port.postMessage
+          name: 'devtoolsOpened'
+          key: 0
+
     ## When button in Tab is clicked, send message to devtools
     contentScript = (message, sender, sendResponse) ->
       return if sender.tab.id isnt tabId
@@ -63,10 +70,12 @@ chrome.runtime.onConnect.addListener (port) ->
         chrome.tabs.insertCSS tabId, file: "src/inject/inject.css", ->
           requestDomFlags("Give me domflags", tabId, tabPort)
 
-        ## Inspect first domflag
-        port.postMessage
-          name: message.name
-          key: 0
+        ## Auto-inspect first flag when page is reloaded
+        chrome.storage.sync.get autoInspectReload: true, (items) ->
+          if items.autoInspectReload
+            port.postMessage
+              name: message.name
+              key: 0
 
     chrome.tabs.onActivated.addListener(tabChange)
     chrome.runtime.onMessage.addListener(contentScript)
