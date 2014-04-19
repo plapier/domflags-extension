@@ -1,5 +1,5 @@
 $background: #D6DDE5;
-$width: 264px;
+$width: 270px;
 
 #domflags-panel {
   box-shadow: 0 0 1px #000;
@@ -53,20 +53,24 @@ $width: 264px;
 
   .domflags-header {
     background-image: linear-gradient(#EFEFEF, #D9D9D9);
-    border-bottom: 1px solid #969696;
+    border-bottom: 1px solid #aaa;
     color: #666;
     display: block;
     font-size: 10px;
-    padding: 3px 12px 3px 24px;
+    padding: 5px 12px 4px 30px;
     position: relative;
     text-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.5);
 
     &:before {
+      // display: none;
       content:'\2691';
       font-size: 11px;
-      left: 12px;
+      left: 17px;
+      opacity: 0.9;
       position: absolute;
-      top: 1px;
+      top: 4px;
+      -webkit-transform: rotate(-10deg);
+      transform:         rotate(-10deg);
     }
   }
 
@@ -76,7 +80,7 @@ $width: 264px;
     list-style: none;
     margin: 0;
     padding: 0;
-    padding-bottom: 2px;
+    padding-bottom: 5px;
   }
 
   .domflags-li {
@@ -84,7 +88,7 @@ $width: 264px;
     display: block;
     max-width: $width;
     overflow: hidden;
-    padding: 6px 12px;
+    padding: 8px 14px 8px 17px;
     position: relative;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -106,8 +110,8 @@ $width: 264px;
     margin-left: 8px;
     opacity: 0.8;
     position: absolute;
-    right: 8px;
-    top: 4px;
+    right: 10px;
+    top: 5px;
     width: $size;
 
     &:hover {
