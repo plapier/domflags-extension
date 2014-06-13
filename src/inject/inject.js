@@ -41,17 +41,13 @@
         if (!this.domflagsPanel.is(":visible")) {
           return chrome.runtime.onMessage.addListener((function(_this) {
             return function(message, sender, sendResponse) {
-              if (message === "Remove panel") {
+              if (message === "remove") {
                 return _this.domflagsPanel.remove();
-              } else if (message === "Give me domflags") {
+              } else if (message === "create") {
                 sendResponse({
                   flags: _this.flaggedElements
                 });
                 return _this.createDomflagsPanel();
-              } else if (message === "Tab change") {
-                return sendResponse({
-                  flags: _this.flaggedElements
-                });
               }
             };
           })(this));

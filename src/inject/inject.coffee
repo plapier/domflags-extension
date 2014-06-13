@@ -35,15 +35,12 @@ $(document).ready ->
       unless @domflagsPanel.is(":visible") ## prevent duplicate listeners
         ## Receive request for flags. Send flags to background.js
         chrome.runtime.onMessage.addListener (message, sender, sendResponse) =>
-          if message is "Remove panel"
+          if message is "remove"
             @domflagsPanel.remove()
 
-          else if message is "Give me domflags"
+          else if message is "create"
             sendResponse flags: @flaggedElements
             @createDomflagsPanel()
-
-          else if message is "Tab change"
-            sendResponse flags: @flaggedElements
 
 
     pageReloaded: ->

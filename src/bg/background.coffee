@@ -17,8 +17,9 @@ trackEvent = ->
 
 ###############
 
-requestDomFlags = (message, tabId, port) ->
+togglePanel = (message, tabId, port) ->
   chrome.tabs.sendMessage tabId, message, (response) ->
+    return
 
 ports = []
 chrome.runtime.onConnect.addListener (port) ->
@@ -39,7 +40,6 @@ chrome.runtime.onConnect.addListener (port) ->
 
     ## When button in Tab is clicked, send message to devtools
     contentScript = (message, sender, sendResponse) ->
-      console.log message
       return if sender.tab.id isnt tabId
 
       if message.name is 'panelClick'
@@ -50,21 +50,26 @@ chrome.runtime.onConnect.addListener (port) ->
 
       else if message.name is 'pageReloaded'
         chrome.tabs.insertCSS tabId, file: "src/inject/inject.css", ->
-          requestDomFlags("Give me domflags", tabId, tabPort)
+          togglePanel("create", tabId, tabPort)
 
-        ## Auto-inspect first flag when page is reloaded
+    ## Auto-inspect first flag when page is reloaded
+    pageReload = (tabId, changeInfo, tab) ->
+      if changeInfo.status is 'complete'
         chrome.storage.sync.get autoInspectReload: true, (items) ->
           if items.autoInspectReload
             port.postMessage
-              name: message.name
+              name: "pageReloaded"
               key: 0
 
     chrome.runtime.onMessage.addListener(contentScript)
+    chrome.tabs.onUpdated.addListener(pageReload)
 
     port.onDisconnect.addListener (port) ->
       chrome.runtime.onMessage.removeListener(contentScript)
-      chrome.tabs.sendMessage tabId, "Remove panel"
+      chrome.tabs.onUpdated.removeListener(pageReload)
+      togglePanel("remove", tabId, tabPort)
       delete ports[tabId]
+
 
   # Create DomFlags Panel when devtools opens
   port.onMessage.addListener (msg) ->
@@ -72,7 +77,7 @@ chrome.runtime.onConnect.addListener (port) ->
       tabId = tabs[0].id
       tabPort = ports[tabId].port
 
-      requestDomFlags("Give me domflags", tabId, tabPort)
+      togglePanel("create", tabId, tabPort)
 
 # Setup keyboard shortcuts
 # SendMessage to active tab / open port
