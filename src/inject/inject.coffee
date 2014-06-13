@@ -11,8 +11,9 @@
 $(document).ready ->
   class WatchDOMFlags
     constructor: (domflags) ->
-      @domflagsPanel = $('#domflags-panel')
       @domflags = domflags
+      @domflagsPanel = $('#domflags-panel')
+      @panelList = undefined
       @flaggedElements = []
       @constructFlagEls()
       @setupDomObserver()
@@ -56,7 +57,7 @@ $(document).ready ->
           el = "<domflags-li class='domflags-li' data-key='#{key}'>#{value}</domflags-li>"
           elements = "#{elements} #{el}"
 
-      @domflagsPanel.find('.domflags-ol').append(elements)
+      @panelList.append(elements)
 
 
     appendDomflagsPanel: ->
@@ -69,6 +70,7 @@ $(document).ready ->
               """
       $(document.body).append html
       @domflagsPanel = $('#domflags-panel')
+      @panelList = @domflagsPanel.find('.domflags-ol')
       @setupDomPanelListeners()
 
 
@@ -83,7 +85,7 @@ $(document).ready ->
 
         else if event.target.className is 'domflags-header'
           if @domflagsPanel.hasClass('opened')
-            listHeight = @domflagsPanel.find('.domflags-ol').outerHeight() + 1;
+            listHeight = @panelList.outerHeight() + 1;
             @domflagsPanel.removeClass('opened').addClass('closed')
             @domflagsPanel.css('transform', "translateY(#{listHeight}px)")
 
@@ -115,6 +117,8 @@ $(document).ready ->
       @domflags = $('[domflag]')
       @constructFlagEls()
 
+    cacheDomflags: ->
+      @domflags = document.querySelectorAll('[domflag]')
 
     # // DOM OBSERVER
     # /////////////////////////////////
@@ -136,14 +140,35 @@ $(document).ready ->
                 node = nodeChange[key]
                 for own key, value of node.attributes
                   if value.name is "domflag"
-                    # console.log "DOMFlag Added/Removed", node, mutation
+                    console.log "DOMFlag Added/Removed", node, mutation
                     @refreshDomPanel()
 
           else if mutation.type is "attributes"
-            # console.log mutation.type, mutation
+            ## Add / Remove Domflags from Panel & DOM
             if (mutation.oldValue == "") or (mutation.oldValue == null)
-              # console.log "DOMFlag Attr added/removes", @elToString(mutation.target)
-              @refreshDomPanel()
+              panelItems = document.getElementsByClassName('domflags-li')
+              elString = @elToString(mutation.target)
+
+              if mutation.target.hasAttribute('domflag')
+                @cacheDomflags()
+                index = $(@domflags).index(mutation.target)
+                @flaggedElements.splice(index, 0, elString)
+                el = "<domflags-li class='domflags-li' data-key='#{index}'>#{elString}</domflags-li>"
+
+                if panelItems.length > 0
+                  if index >= 1
+                    $(panelItems[index - 1]).after(el)
+                  else
+                    console.log index
+                    $(panelItems[0]).before(el)
+                else
+                  @panelList.append(el)
+
+              else
+                index = $(@domflags).index(mutation.target)
+                @flaggedElements.splice(index, 1)
+                $(panelItems[index]).remove()
+                @cacheDomflags()
       )
 
       config =
@@ -156,5 +181,5 @@ $(document).ready ->
       observer.observe document.body, config
 
   ## Instantiate WatchDOMFlags
-  $domflags = $('[domflag]')
-  new WatchDOMFlags($domflags)
+  domflags = document.querySelectorAll('[domflag]')
+  new WatchDOMFlags(domflags)

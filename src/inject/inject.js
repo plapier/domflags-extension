@@ -11,11 +11,12 @@
   };
 
   $(document).ready(function() {
-    var $domflags, WatchDOMFlags;
+    var WatchDOMFlags, domflags;
     WatchDOMFlags = (function() {
       function WatchDOMFlags(domflags) {
-        this.domflagsPanel = $('#domflags-panel');
         this.domflags = domflags;
+        this.domflagsPanel = $('#domflags-panel');
+        this.panelList = void 0;
         this.flaggedElements = [];
         this.constructFlagEls();
         this.setupDomObserver();
@@ -75,7 +76,7 @@
             elements = "" + elements + " " + el;
           }
         }
-        return this.domflagsPanel.find('.domflags-ol').append(elements);
+        return this.panelList.append(elements);
       };
 
       WatchDOMFlags.prototype.appendDomflagsPanel = function() {
@@ -83,6 +84,7 @@
         html = "<domflags-panel id=\"domflags-panel\" class=\"bottom left opened\">\n  <domflags-header class=\"domflags-header\">DOMFLAGS</domflags-header>\n  <domflags-button class=\"domflags-button right\"></domflags-button>\n  <domflags-ol class=\"domflags-ol\"></domflags-ol>\n</domflags-panel>";
         $(document.body).append(html);
         this.domflagsPanel = $('#domflags-panel');
+        this.panelList = this.domflagsPanel.find('.domflags-ol');
         return this.setupDomPanelListeners();
       };
 
@@ -98,7 +100,7 @@
               });
             } else if (event.target.className === 'domflags-header') {
               if (_this.domflagsPanel.hasClass('opened')) {
-                listHeight = _this.domflagsPanel.find('.domflags-ol').outerHeight() + 1;
+                listHeight = _this.panelList.outerHeight() + 1;
                 _this.domflagsPanel.removeClass('opened').addClass('closed');
                 return _this.domflagsPanel.css('transform', "translateY(" + listHeight + "px)");
               } else if (_this.domflagsPanel.hasClass('closed')) {
@@ -141,12 +143,16 @@
         return this.constructFlagEls();
       };
 
+      WatchDOMFlags.prototype.cacheDomflags = function() {
+        return this.domflags = document.querySelectorAll('[domflag]');
+      };
+
       WatchDOMFlags.prototype.setupDomObserver = function() {
         var config, observer;
         observer = new MutationObserver((function(_this) {
           return function(mutations) {
             return mutations.forEach(function(mutation) {
-              var addedNodes, key, node, nodeChange, removedNodes, value, _results;
+              var addedNodes, el, elString, index, key, node, nodeChange, panelItems, removedNodes, value, _results;
               if (mutation.type === "childList") {
                 removedNodes = mutation.removedNodes;
                 addedNodes = mutation.addedNodes;
@@ -174,6 +180,7 @@
                         if (!__hasProp.call(_ref, key)) continue;
                         value = _ref[key];
                         if (value.name === "domflag") {
+                          console.log("DOMFlag Added/Removed", node, mutation);
                           _results1.push(this.refreshDomPanel());
                         } else {
                           _results1.push(void 0);
@@ -186,7 +193,29 @@
                 }
               } else if (mutation.type === "attributes") {
                 if ((mutation.oldValue === "") || (mutation.oldValue === null)) {
-                  return _this.refreshDomPanel();
+                  panelItems = document.getElementsByClassName('domflags-li');
+                  elString = _this.elToString(mutation.target);
+                  if (mutation.target.hasAttribute('domflag')) {
+                    _this.cacheDomflags();
+                    index = $(_this.domflags).index(mutation.target);
+                    _this.flaggedElements.splice(index, 0, elString);
+                    el = "<domflags-li class='domflags-li' data-key='" + index + "'>" + elString + "</domflags-li>";
+                    if (panelItems.length > 0) {
+                      if (index >= 1) {
+                        return $(panelItems[index - 1]).after(el);
+                      } else {
+                        console.log(index);
+                        return $(panelItems[0]).before(el);
+                      }
+                    } else {
+                      return _this.panelList.append(el);
+                    }
+                  } else {
+                    index = $(_this.domflags).index(mutation.target);
+                    _this.flaggedElements.splice(index, 1);
+                    $(panelItems[index]).remove();
+                    return _this.cacheDomflags();
+                  }
                 }
               }
             });
@@ -205,8 +234,8 @@
       return WatchDOMFlags;
 
     })();
-    $domflags = $('[domflag]');
-    return new WatchDOMFlags($domflags);
+    domflags = document.querySelectorAll('[domflag]');
+    return new WatchDOMFlags(domflags);
   });
 
 }).call(this);
