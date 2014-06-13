@@ -76,7 +76,6 @@ chrome.runtime.onConnect.addListener (port) ->
     chrome.tabs.query currentWindow: true, active: true, (tabs) ->
       tabId = tabs[0].id
       tabPort = ports[tabId].port
-
       togglePanel("create", tabId, tabPort)
 
 # Setup keyboard shortcuts

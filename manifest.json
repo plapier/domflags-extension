@@ -11,7 +11,7 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": [ "tabs", "activeTab", "storage" ],
+  "permissions": [ "tabs", "activeTab", "storage", "http://localhost/*" ],
   "devtools_page": "src/devtools/devtools.html",
   "options_page": "src/options/options.html",
   "browser_action": {
