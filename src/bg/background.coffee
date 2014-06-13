@@ -95,3 +95,14 @@ chrome.runtime.onConnect.addListener (port) ->
 
       chrome.contextMenus.removeAll()
       requestDomFlags("Give me domflags", tabId, tabPort)
+
+# Setup keyboard shortcuts
+# SendMessage to active tab / open port
+chrome.commands.onCommand.addListener (command) ->
+  chrome.tabs.query currentWindow: true, active: true, (tabs) ->
+    tabId = tabs[0].id
+    if ports[tabId]
+      port = ports[tabId].port
+      port.postMessage
+        name: "keyboardShortcut"
+        key: command

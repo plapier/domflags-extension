@@ -15,7 +15,7 @@
   });
 
   port.onMessage.addListener(function(msg) {
-    if (msg.name === "contextMenuClick" || "panelClick" || "pageReloaded" || "devtoolsOpened") {
+    if (msg.name === "contextMenuClick" || "panelClick" || "pageReloaded" || "devtoolsOpened" || "keyboardShortcut") {
       return showDomFlag(msg.key);
     }
   });

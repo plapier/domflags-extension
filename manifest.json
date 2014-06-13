@@ -1,6 +1,6 @@
 {
   "name": "DomFlags",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "manifest_version": 2,
   "description": "Bookmarks for deeply nested dom elements",
   "homepage_url": "http://lapier.me",
@@ -43,5 +43,53 @@
         "src/inject/inject.css"
       ]
     }
-  ]
+  ],
+  "commands": {
+    "0": {
+      "suggested_key": {
+        "default": "Alt+Shift+1",
+        "mac": "Alt+Shift+1"
+      },
+      "description": "Inspect the 1st domflag"
+    },
+    "1": {
+      "suggested_key": {
+        "default": "Alt+Shift+2",
+        "mac": "Alt+Shift+2"
+      },
+      "description": "Inspect the 2nd domflag"
+    },
+    "2": {
+      "suggested_key": {
+        "default": "Alt+Shift+3",
+        "mac": "Alt+Shift+3"
+      },
+      "description": "Inspect the 3rd domflag"
+    },
+    "3": {
+      "suggested_key": {
+        "default": "Alt+Shift+4",
+        "mac": "Alt+Shift+4"
+      },
+      "description": "Inspect the 4th domflag"
+    },
+    "4": {
+      "description": "Inspect the 5th domflag"
+    },
+    "5": {
+      "description": "Inspect the 6th domflag"
+    },
+    "6": {
+      "description": "Inspect the 7th domflag"
+    },
+    "7": {
+      "description": "Inspect the 8th domflag"
+    },
+    "8": {
+      "description": "Inspect the 9th domflag"
+    },
+    "9": {
+      "description": "Inspect the 10th domflag"
+    }
+  }
 }

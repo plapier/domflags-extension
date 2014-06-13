@@ -142,4 +142,21 @@
     });
   });
 
+  chrome.commands.onCommand.addListener(function(command) {
+    return chrome.tabs.query({
+      currentWindow: true,
+      active: true
+    }, function(tabs) {
+      var port, tabId;
+      tabId = tabs[0].id;
+      if (ports[tabId]) {
+        port = ports[tabId].port;
+        return port.postMessage({
+          name: "keyboardShortcut",
+          key: command
+        });
+      }
+    });
+  });
+
 }).call(this);
