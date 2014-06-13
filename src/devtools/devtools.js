@@ -19,7 +19,7 @@
       return chrome.devtools.inspectedWindow["eval"]("toggleDomflag($0)", {
         useContentScriptContext: true
       });
-    } else if (msg.name === "contextMenuClick" || "panelClick" || "pageReloaded" || "devtoolsOpened" || "keyboardShortcut") {
+    } else if (msg.name === "panelClick" || "pageReloaded" || "devtoolsOpened" || "keyboardShortcut") {
       return showDomFlag(msg.key);
     }
   });

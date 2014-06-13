@@ -22,5 +22,5 @@ port.onMessage.addListener (msg) ->
     chrome.devtools.inspectedWindow.eval "toggleDomflag($0)",
       useContentScriptContext: true
 
-  else if msg.name is "contextMenuClick" or "panelClick" or "pageReloaded" or "devtoolsOpened" or "keyboardShortcut"
+  else if msg.name is "panelClick" or "pageReloaded" or "devtoolsOpened" or "keyboardShortcut"
     showDomFlag(msg.key)
