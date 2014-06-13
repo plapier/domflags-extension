@@ -16,5 +16,11 @@ showDomFlag = (key) ->
 port = chrome.runtime.connect(name: "devtools")
 port.postMessage(msg: "initiate")
 port.onMessage.addListener (msg) ->
-  if msg.name is "contextMenuClick" or "panelClick" or "pageReloaded" or "devtoolsOpened" or "keyboardShortcut"
+  if msg.name is "getInspectedEl"
+    # chrome.devtools.inspectedWindow.eval "console.log($0, 'devtools')"
+    # pass element to inject content script
+    chrome.devtools.inspectedWindow.eval "toggleDomflag($0)",
+      useContentScriptContext: true
+
+  else if msg.name is "contextMenuClick" or "panelClick" or "pageReloaded" or "devtoolsOpened" or "keyboardShortcut"
     showDomFlag(msg.key)

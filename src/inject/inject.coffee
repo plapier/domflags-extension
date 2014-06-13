@@ -1,5 +1,13 @@
 #### CONTENT SCRIPT
 
+## toggleDomflag for keyboard shortcuts
+## create new tabs to test
+@toggleDomflag = (el) ->
+  if el.hasAttribute('domflag')
+    el.removeAttribute('domflag', '')
+  else
+    el.setAttribute('domflag', '')
+
 $(document).ready ->
   class WatchDOMFlags
     constructor: (domflags) ->

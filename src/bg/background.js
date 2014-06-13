@@ -91,6 +91,7 @@
         }
       });
       contentScript = function(message, sender, sendResponse) {
+        console.log(message);
         if (sender.tab.id !== tabId) {
           return;
         }
@@ -151,10 +152,16 @@
       tabId = tabs[0].id;
       if (ports[tabId]) {
         port = ports[tabId].port;
-        return port.postMessage({
-          name: "keyboardShortcut",
-          key: command
-        });
+        if (command === "toggle_domflag") {
+          return port.postMessage({
+            name: "getInspectedEl"
+          });
+        } else {
+          return port.postMessage({
+            name: "keyboardShortcut",
+            key: command
+          });
+        }
       }
     });
   });

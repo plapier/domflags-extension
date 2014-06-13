@@ -58,6 +58,7 @@ chrome.runtime.onConnect.addListener (port) ->
 
     ## When button in Tab is clicked, send message to devtools
     contentScript = (message, sender, sendResponse) ->
+      console.log message
       return if sender.tab.id isnt tabId
 
       if message.name is 'panelClick'
@@ -101,8 +102,15 @@ chrome.runtime.onConnect.addListener (port) ->
 chrome.commands.onCommand.addListener (command) ->
   chrome.tabs.query currentWindow: true, active: true, (tabs) ->
     tabId = tabs[0].id
+
     if ports[tabId]
       port = ports[tabId].port
-      port.postMessage
-        name: "keyboardShortcut"
-        key: command
+
+      if command is "toggle_domflag"
+        port.postMessage
+          name: "getInspectedEl"
+
+      else
+        port.postMessage
+          name: "keyboardShortcut"
+          key: command

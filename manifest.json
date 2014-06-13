@@ -45,6 +45,13 @@
     }
   ],
   "commands": {
+    "toggle_domflag": {
+      "suggested_key": {
+        "default": "Alt+Shift+D",
+        "mac": "Alt+Shift+D"
+      },
+      "description": "Add / Remove a DomFlag"
+    },
     "0": {
       "suggested_key": {
         "default": "Alt+Shift+1",
@@ -67,10 +74,6 @@
       "description": "Inspect the 3rd domflag"
     },
     "3": {
-      "suggested_key": {
-        "default": "Alt+Shift+4",
-        "mac": "Alt+Shift+4"
-      },
       "description": "Inspect the 4th domflag"
     },
     "4": {

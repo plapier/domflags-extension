@@ -15,7 +15,11 @@
   });
 
   port.onMessage.addListener(function(msg) {
-    if (msg.name === "contextMenuClick" || "panelClick" || "pageReloaded" || "devtoolsOpened" || "keyboardShortcut") {
+    if (msg.name === "getInspectedEl") {
+      return chrome.devtools.inspectedWindow["eval"]("toggleDomflag($0)", {
+        useContentScriptContext: true
+      });
+    } else if (msg.name === "contextMenuClick" || "panelClick" || "pageReloaded" || "devtoolsOpened" || "keyboardShortcut") {
       return showDomFlag(msg.key);
     }
   });

@@ -2,6 +2,14 @@
 (function() {
   var __hasProp = {}.hasOwnProperty;
 
+  this.toggleDomflag = function(el) {
+    if (el.hasAttribute('domflag')) {
+      return el.removeAttribute('domflag', '');
+    } else {
+      return el.setAttribute('domflag', '');
+    }
+  };
+
   $(document).ready(function() {
     var $domflags, WatchDOMFlags;
     WatchDOMFlags = (function() {
