@@ -136,21 +136,24 @@
         return elString;
       };
 
-      WatchDOMFlags.prototype.refreshDomPanel = function() {
-        $('.domflags-li').remove();
-        this.flaggedElements = [];
-        this.domflags = $('[domflag]');
-        return this.constructFlagEls();
-      };
-
       WatchDOMFlags.prototype.cacheDomflags = function() {
         return this.domflags = document.querySelectorAll('[domflag]');
       };
 
-      WatchDOMFlags.prototype.addNodesToPanel = function(newNodes) {
-        var el, elString, index, node, panelItems, _i, _len, _results;
-        panelItems = document.getElementsByClassName('domflags-li');
+      WatchDOMFlags.prototype.calibrateIndexes = function() {
+        var i, tag, tags, _i, _len, _results;
+        tags = this.panelList[0].getElementsByTagName('domflags-li');
         _results = [];
+        for (i = _i = 0, _len = tags.length; _i < _len; i = ++_i) {
+          tag = tags[i];
+          _results.push(tag.setAttribute('data-key', i));
+        }
+        return _results;
+      };
+
+      WatchDOMFlags.prototype.addNodesToPanel = function(newNodes) {
+        var el, elString, index, node, panelItems, _i, _len;
+        panelItems = document.getElementsByClassName('domflags-li');
         for (_i = 0, _len = newNodes.length; _i < _len; _i++) {
           node = newNodes[_i];
           elString = this.elToString(node);
@@ -161,18 +164,16 @@
             el = "<domflags-li class='domflags-li' data-key='" + index + "'>" + elString + "</domflags-li>";
             if (panelItems.length > 0) {
               if (index >= 1) {
-                _results.push($(panelItems[index - 1]).after(el));
+                $(panelItems[index - 1]).after(el);
               } else {
-                _results.push($(panelItems[0]).before(el));
+                $(panelItems[0]).before(el);
               }
             } else {
-              _results.push(this.panelList.append(el));
+              this.panelList.append(el);
             }
-          } else {
-            _results.push(void 0);
           }
         }
-        return _results;
+        return this.calibrateIndexes();
       };
 
       WatchDOMFlags.prototype.removeNodesFromPanel = function(deletedNodes) {
@@ -185,7 +186,8 @@
           this.flaggedElements.splice(index, 1);
           $(panelItems[index]).remove();
         }
-        return this.cacheDomflags();
+        this.cacheDomflags();
+        return this.calibrateIndexes();
       };
 
       WatchDOMFlags.prototype.setupDomObserver = function() {
@@ -261,13 +263,17 @@
                 }
               }
             });
-            _this.removeNodesFromPanel(deletedNodes);
-            return _this.addNodesToPanel(newNodes);
+            if (deletedNodes.length > 0) {
+              _this.removeNodesFromPanel(deletedNodes);
+            }
+            if (newNodes.length > 0) {
+              return _this.addNodesToPanel(newNodes);
+            }
           };
         })(this));
         config = {
           attributeFilter: ['domflag'],
-          attributeOldValue: true,
+          attributeOldValue: false,
           attributes: true,
           childList: true,
           subtree: true

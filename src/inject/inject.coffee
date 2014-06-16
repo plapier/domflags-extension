@@ -111,17 +111,13 @@ $(document).ready ->
       elString = domArray.join(' ')
       return elString
 
-    refreshDomPanel: ->
-      $('.domflags-li').remove()
-      @flaggedElements = []
-      @domflags = $('[domflag]')
-      @constructFlagEls()
-
     cacheDomflags: ->
       @domflags = document.querySelectorAll('[domflag]')
 
-    # // DOM OBSERVER
-    # /////////////////////////////////
+    calibrateIndexes: ->
+      tags = @panelList[0].getElementsByTagName('domflags-li')
+      tag.setAttribute 'data-key', i for tag, i in tags
+
     addNodesToPanel: (newNodes) ->
       panelItems = document.getElementsByClassName('domflags-li')
       for node in newNodes
@@ -140,6 +136,7 @@ $(document).ready ->
               $(panelItems[0]).before(el)
           else
             @panelList.append(el)
+      @calibrateIndexes()
 
     removeNodesFromPanel: (deletedNodes) ->
       panelItems = document.getElementsByClassName('domflags-li')
@@ -148,7 +145,10 @@ $(document).ready ->
         @flaggedElements.splice(index, 1)
         $(panelItems[index]).remove()
       @cacheDomflags()
+      @calibrateIndexes()
 
+    # // DOM OBSERVER
+    # /////////////////////////////////
     setupDomObserver: ->
       observer = new MutationObserver((mutations) =>
         newNodes = []
@@ -188,13 +188,13 @@ $(document).ready ->
               else
                 deletedNodes.push(mutation.target)
 
-        @removeNodesFromPanel(deletedNodes)
-        @addNodesToPanel(newNodes)
+        @removeNodesFromPanel(deletedNodes) if deletedNodes.length > 0
+        @addNodesToPanel(newNodes) if newNodes.length > 0
       )
 
       config =
         attributeFilter: ['domflag']
-        attributeOldValue: true
+        attributeOldValue: false
         attributes: true
         childList: true
         subtree: true
