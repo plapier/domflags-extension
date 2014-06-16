@@ -122,53 +122,74 @@ $(document).ready ->
 
     # // DOM OBSERVER
     # /////////////////////////////////
+    addNodesToPanel: (newNodes) ->
+      panelItems = document.getElementsByClassName('domflags-li')
+      for node in newNodes
+        elString = @elToString(node)
+
+        if node.hasAttribute('domflag')
+          @cacheDomflags()
+          index = $(@domflags).index(node)
+          @flaggedElements.splice(index, 0, elString)
+          el = "<domflags-li class='domflags-li' data-key='#{index}'>#{elString}</domflags-li>"
+
+          if panelItems.length > 0
+            if index >= 1
+              $(panelItems[index - 1]).after(el)
+            else
+              $(panelItems[0]).before(el)
+          else
+            @panelList.append(el)
+
+    removeNodesFromPanel: (deletedNodes) ->
+      panelItems = document.getElementsByClassName('domflags-li')
+      for node in deletedNodes.slice(0).reverse()
+        index = $(@domflags).index(node)
+        @flaggedElements.splice(index, 1)
+        $(panelItems[index]).remove()
+      @cacheDomflags()
+
     setupDomObserver: ->
       observer = new MutationObserver((mutations) =>
+        newNodes = []
+        deletedNodes = []
         mutations.forEach (mutation) =>
-          if mutation.type == "childList"
+          ## A node has been added / deleted
+          if mutation.type is "childList"
 
-            removedNodes = mutation.removedNodes
-            addedNodes   = mutation.addedNodes
+            addedNodes =
+              mutation: mutation.addedNodes
+              panelArray: newNodes
+            removedNodes =
+              mutation: mutation.removedNodes
+              panelArray: deletedNodes
 
             nodeChange = switch
-              when removedNodes.length >= 1 then removedNodes
-              when addedNodes.length   >= 1 then addedNodes
+              when addedNodes.mutation.length   > 0 then addedNodes
+              when removedNodes.mutation.length > 0 then removedNodes
               else undefined
 
             if nodeChange
-              for own key, value of nodeChange
-                node = nodeChange[key]
+              for own key, value of nodeChange.mutation
+                node = nodeChange.mutation[key]
                 for own key, value of node.attributes
                   if value.name is "domflag"
-                    console.log "DOMFlag Added/Removed", node, mutation
-                    @refreshDomPanel()
+                    ## build a list of nodes that are added / removed
+                    childrenArray = Array::slice.call(node.querySelectorAll("[domflag]"))
+                    nodeChange.panelArray.push(node)
+                    nodeChange.panelArray.push(item) for item in childrenArray
+                    # console.log "DOMFlag Added/Removed", node, mutation
 
+          ## Attribute has been added / deleted
           else if mutation.type is "attributes"
-            ## Add / Remove Domflags from Panel & DOM
             if (mutation.oldValue == "") or (mutation.oldValue == null)
-              panelItems = document.getElementsByClassName('domflags-li')
-              elString = @elToString(mutation.target)
-
               if mutation.target.hasAttribute('domflag')
-                @cacheDomflags()
-                index = $(@domflags).index(mutation.target)
-                @flaggedElements.splice(index, 0, elString)
-                el = "<domflags-li class='domflags-li' data-key='#{index}'>#{elString}</domflags-li>"
-
-                if panelItems.length > 0
-                  if index >= 1
-                    $(panelItems[index - 1]).after(el)
-                  else
-                    console.log index
-                    $(panelItems[0]).before(el)
-                else
-                  @panelList.append(el)
-
+                newNodes.push(mutation.target)
               else
-                index = $(@domflags).index(mutation.target)
-                @flaggedElements.splice(index, 1)
-                $(panelItems[index]).remove()
-                @cacheDomflags()
+                deletedNodes.push(mutation.target)
+
+        @removeNodesFromPanel(deletedNodes)
+        @addNodesToPanel(newNodes)
       )
 
       config =

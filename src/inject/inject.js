@@ -147,78 +147,122 @@
         return this.domflags = document.querySelectorAll('[domflag]');
       };
 
+      WatchDOMFlags.prototype.addNodesToPanel = function(newNodes) {
+        var el, elString, index, node, panelItems, _i, _len, _results;
+        panelItems = document.getElementsByClassName('domflags-li');
+        _results = [];
+        for (_i = 0, _len = newNodes.length; _i < _len; _i++) {
+          node = newNodes[_i];
+          elString = this.elToString(node);
+          if (node.hasAttribute('domflag')) {
+            this.cacheDomflags();
+            index = $(this.domflags).index(node);
+            this.flaggedElements.splice(index, 0, elString);
+            el = "<domflags-li class='domflags-li' data-key='" + index + "'>" + elString + "</domflags-li>";
+            if (panelItems.length > 0) {
+              if (index >= 1) {
+                _results.push($(panelItems[index - 1]).after(el));
+              } else {
+                _results.push($(panelItems[0]).before(el));
+              }
+            } else {
+              _results.push(this.panelList.append(el));
+            }
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      };
+
+      WatchDOMFlags.prototype.removeNodesFromPanel = function(deletedNodes) {
+        var index, node, panelItems, _i, _len, _ref;
+        panelItems = document.getElementsByClassName('domflags-li');
+        _ref = deletedNodes.slice(0).reverse();
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          node = _ref[_i];
+          index = $(this.domflags).index(node);
+          this.flaggedElements.splice(index, 1);
+          $(panelItems[index]).remove();
+        }
+        return this.cacheDomflags();
+      };
+
       WatchDOMFlags.prototype.setupDomObserver = function() {
         var config, observer;
         observer = new MutationObserver((function(_this) {
           return function(mutations) {
-            return mutations.forEach(function(mutation) {
-              var addedNodes, el, elString, index, key, node, nodeChange, panelItems, removedNodes, value, _results;
+            var deletedNodes, newNodes;
+            newNodes = [];
+            deletedNodes = [];
+            mutations.forEach(function(mutation) {
+              var addedNodes, childrenArray, item, key, node, nodeChange, removedNodes, value, _ref, _results;
               if (mutation.type === "childList") {
-                removedNodes = mutation.removedNodes;
-                addedNodes = mutation.addedNodes;
+                addedNodes = {
+                  mutation: mutation.addedNodes,
+                  panelArray: newNodes
+                };
+                removedNodes = {
+                  mutation: mutation.removedNodes,
+                  panelArray: deletedNodes
+                };
                 nodeChange = (function() {
                   switch (false) {
-                    case !(removedNodes.length >= 1):
-                      return removedNodes;
-                    case !(addedNodes.length >= 1):
+                    case !(addedNodes.mutation.length > 0):
                       return addedNodes;
+                    case !(removedNodes.mutation.length > 0):
+                      return removedNodes;
                     default:
                       return void 0;
                   }
                 })();
                 if (nodeChange) {
+                  _ref = nodeChange.mutation;
                   _results = [];
-                  for (key in nodeChange) {
-                    if (!__hasProp.call(nodeChange, key)) continue;
-                    value = nodeChange[key];
-                    node = nodeChange[key];
+                  for (key in _ref) {
+                    if (!__hasProp.call(_ref, key)) continue;
+                    value = _ref[key];
+                    node = nodeChange.mutation[key];
                     _results.push((function() {
-                      var _ref, _results1;
-                      _ref = node.attributes;
+                      var _ref1, _results1;
+                      _ref1 = node.attributes;
                       _results1 = [];
-                      for (key in _ref) {
-                        if (!__hasProp.call(_ref, key)) continue;
-                        value = _ref[key];
+                      for (key in _ref1) {
+                        if (!__hasProp.call(_ref1, key)) continue;
+                        value = _ref1[key];
                         if (value.name === "domflag") {
-                          console.log("DOMFlag Added/Removed", node, mutation);
-                          _results1.push(this.refreshDomPanel());
+                          childrenArray = Array.prototype.slice.call(node.querySelectorAll("[domflag]"));
+                          nodeChange.panelArray.push(node);
+                          _results1.push((function() {
+                            var _i, _len, _results2;
+                            _results2 = [];
+                            for (_i = 0, _len = childrenArray.length; _i < _len; _i++) {
+                              item = childrenArray[_i];
+                              _results2.push(nodeChange.panelArray.push(item));
+                            }
+                            return _results2;
+                          })());
                         } else {
                           _results1.push(void 0);
                         }
                       }
                       return _results1;
-                    }).call(_this));
+                    })());
                   }
                   return _results;
                 }
               } else if (mutation.type === "attributes") {
                 if ((mutation.oldValue === "") || (mutation.oldValue === null)) {
-                  panelItems = document.getElementsByClassName('domflags-li');
-                  elString = _this.elToString(mutation.target);
                   if (mutation.target.hasAttribute('domflag')) {
-                    _this.cacheDomflags();
-                    index = $(_this.domflags).index(mutation.target);
-                    _this.flaggedElements.splice(index, 0, elString);
-                    el = "<domflags-li class='domflags-li' data-key='" + index + "'>" + elString + "</domflags-li>";
-                    if (panelItems.length > 0) {
-                      if (index >= 1) {
-                        return $(panelItems[index - 1]).after(el);
-                      } else {
-                        console.log(index);
-                        return $(panelItems[0]).before(el);
-                      }
-                    } else {
-                      return _this.panelList.append(el);
-                    }
+                    return newNodes.push(mutation.target);
                   } else {
-                    index = $(_this.domflags).index(mutation.target);
-                    _this.flaggedElements.splice(index, 1);
-                    $(panelItems[index]).remove();
-                    return _this.cacheDomflags();
+                    return deletedNodes.push(mutation.target);
                   }
                 }
               }
             });
+            _this.removeNodesFromPanel(deletedNodes);
+            return _this.addNodesToPanel(newNodes);
           };
         })(this));
         config = {
