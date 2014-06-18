@@ -20,7 +20,7 @@ $(document).ready ->
       @setupDomObserver()
 
     backgroundListener: ->
-      ## Receive request for flags. Send flags to background.js
+      ## Receive requests from background script
       chrome.runtime.onMessage.addListener (message, sender, sendResponse) =>
         if message is "remove"
           $(@domflagsPanel).remove()
