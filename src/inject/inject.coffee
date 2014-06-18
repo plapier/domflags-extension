@@ -22,11 +22,10 @@ $(document).ready ->
     backgroundListener: ->
       ## Receive request for flags. Send flags to background.js
       chrome.runtime.onMessage.addListener (message, sender, sendResponse) =>
-        if @domflags.length > 0
-          if message is "remove"
-            $(@domflagsPanel).remove()
+        if message is "remove"
+          $(@domflagsPanel).remove()
 
-          else if message is "create"
+        if message is "create" and @domflags.length > 0
             @addNodesToPanel(@domflags)
 
 

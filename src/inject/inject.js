@@ -25,12 +25,11 @@
       WatchDOMFlags.prototype.backgroundListener = function() {
         return chrome.runtime.onMessage.addListener((function(_this) {
           return function(message, sender, sendResponse) {
-            if (_this.domflags.length > 0) {
-              if (message === "remove") {
-                return $(_this.domflagsPanel).remove();
-              } else if (message === "create") {
-                return _this.addNodesToPanel(_this.domflags);
-              }
+            if (message === "remove") {
+              $(_this.domflagsPanel).remove();
+            }
+            if (message === "create" && _this.domflags.length > 0) {
+              return _this.addNodesToPanel(_this.domflags);
             }
           };
         })(this));
