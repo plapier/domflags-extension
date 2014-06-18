@@ -38,7 +38,7 @@ chrome.runtime.onConnect.addListener (port) ->
           name: 'devtoolsOpened'
           key: 0
 
-    ## When button in Tab is clicked, send message to devtools
+    ## When item in panel is clicked, send message to devtools
     contentScript = (message, sender, sendResponse) ->
       return if sender.tab.id isnt tabId
 
@@ -47,21 +47,21 @@ chrome.runtime.onConnect.addListener (port) ->
           name: message.name
           key: message.key
         trackEvent()
-
-      else if message.name is 'pageReloaded'
-        chrome.tabs.insertCSS tabId, file: "src/inject/inject.css", ->
-          togglePanel("create", tabId, tabPort)
+        return
 
     ## Auto-inspect first flag when page is reloaded
     pageReload = (tabId, changeInfo, tab) ->
       if changeInfo.status is 'complete'
+        togglePanel("create", tabId, tabPort) ## recreate panel
         chrome.storage.sync.get autoInspectReload: true, (items) ->
           if items.autoInspectReload
             port.postMessage
               name: "pageReloaded"
               key: 0
 
+    ## Init message passing on runtime
     chrome.runtime.onMessage.addListener(contentScript)
+    ## On page reloaded, init pageReload listener
     chrome.tabs.onUpdated.addListener(pageReload)
 
     port.onDisconnect.addListener (port) ->

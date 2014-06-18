@@ -15,81 +15,38 @@
     WatchDOMFlags = (function() {
       function WatchDOMFlags(domflags) {
         this.domflags = domflags;
-        this.domflagsPanel = $('#domflags-panel');
+        this.domflagsPanel = void 0;
         this.panelList = void 0;
-        this.flaggedElements = [];
-        this.constructFlagEls();
+        this.flagStrings = [];
+        this.backgroundListener();
         this.setupDomObserver();
       }
 
-      WatchDOMFlags.prototype.constructFlagEls = function() {
-        var elString, key, _ref;
-        if (this.domflags.length > 0) {
-          _ref = this.domflags;
-          for (key in _ref) {
-            if (!__hasProp.call(_ref, key)) continue;
-            if ($.isNumeric(key)) {
-              elString = this.elToString(this.domflags[key]);
-              this.flaggedElements.push(elString);
-            }
-          }
-          return this.backgroundListener();
-        }
-      };
-
       WatchDOMFlags.prototype.backgroundListener = function() {
-        this.pageReloaded();
-        if (!this.domflagsPanel.is(":visible")) {
-          return chrome.runtime.onMessage.addListener((function(_this) {
-            return function(message, sender, sendResponse) {
+        return chrome.runtime.onMessage.addListener((function(_this) {
+          return function(message, sender, sendResponse) {
+            if (_this.domflags.length > 0) {
               if (message === "remove") {
-                return _this.domflagsPanel.remove();
+                return $(_this.domflagsPanel).remove();
               } else if (message === "create") {
-                sendResponse({
-                  flags: _this.flaggedElements
-                });
-                return _this.createDomflagsPanel();
+                return _this.addNodesToPanel(_this.domflags);
               }
-            };
-          })(this));
-        }
-      };
-
-      WatchDOMFlags.prototype.pageReloaded = function() {
-        return chrome.runtime.sendMessage({
-          name: "pageReloaded"
-        });
-      };
-
-      WatchDOMFlags.prototype.createDomflagsPanel = function() {
-        var el, elements, key, value, _ref;
-        if (!this.domflagsPanel.is(":visible")) {
-          this.appendDomflagsPanel();
-        }
-        elements = "";
-        _ref = this.flaggedElements;
-        for (key in _ref) {
-          if (!__hasProp.call(_ref, key)) continue;
-          value = _ref[key];
-          if ($.isNumeric(key)) {
-            el = "<domflags-li class='domflags-li' data-key='" + key + "'>" + value + "</domflags-li>";
-            elements = "" + elements + " " + el;
-          }
-        }
-        return this.panelList.append(elements);
+            }
+          };
+        })(this));
       };
 
       WatchDOMFlags.prototype.appendDomflagsPanel = function() {
         var html;
         html = "<domflags-panel id=\"domflags-panel\" class=\"bottom left opened\">\n  <domflags-header class=\"domflags-header\">DOMFLAGS</domflags-header>\n  <domflags-button class=\"domflags-button right\"></domflags-button>\n  <domflags-ol class=\"domflags-ol\"></domflags-ol>\n</domflags-panel>";
         $(document.body).append(html);
-        this.domflagsPanel = $('#domflags-panel');
-        this.panelList = this.domflagsPanel.find('.domflags-ol');
-        return this.setupDomPanelListeners();
+        this.domflagsPanel = document.getElementById('domflags-panel');
+        this.panelList = $(this.domflagsPanel).find('.domflags-ol');
+        return this.createPanelListeners();
       };
 
-      WatchDOMFlags.prototype.setupDomPanelListeners = function() {
-        return this.domflagsPanel.get(0).addEventListener('click', (function(_this) {
+      WatchDOMFlags.prototype.createPanelListeners = function() {
+        return this.domflagsPanel.addEventListener('click', (function(_this) {
           return function(event) {
             var key, listHeight, oldPos, targetPos;
             if (event.target.className === 'domflags-li') {
@@ -99,14 +56,16 @@
                 key: key
               });
             } else if (event.target.className === 'domflags-header') {
-              if (_this.domflagsPanel.hasClass('opened')) {
+              if (_this.domflagsPanel.classList.contains('opened')) {
                 listHeight = _this.panelList.outerHeight() + 1;
-                _this.domflagsPanel.removeClass('opened').addClass('closed');
-                return _this.domflagsPanel.css('transform', "translateY(" + listHeight + "px)");
-              } else if (_this.domflagsPanel.hasClass('closed')) {
-                _this.domflagsPanel.removeClass('closed').addClass('opened');
-                return _this.domflagsPanel.css('transform', "translateY(0px)");
+                _this.domflagsPanel.classList.remove('opened');
+                _this.domflagsPanel.classList.add('closed');
+              } else if (_this.domflagsPanel.classList.contains('closed')) {
+                listHeight = 0;
+                _this.domflagsPanel.classList.remove('closed');
+                _this.domflagsPanel.classList.add('opened');
               }
+              return $(_this.domflagsPanel).css('transform', "translateY(" + listHeight + "px)");
             } else if (event.target.classList[0] === 'domflags-button') {
               targetPos = event.target.classList[1];
               if (targetPos === "left") {
@@ -114,21 +73,26 @@
               } else if (targetPos === "right") {
                 oldPos = "left";
               }
-              _this.domflagsPanel.removeClass(oldPos).addClass(targetPos);
-              return $(event.target).removeClass(targetPos).addClass(oldPos);
+              _this.domflagsPanel.classList.remove(oldPos);
+              _this.domflagsPanel.classList.add(targetPos);
+              event.target.classList.remove(targetPos);
+              return event.target.classList.add(oldPos);
             }
           };
         })(this));
       };
 
+      WatchDOMFlags.prototype.nodeListToArray = function(nodeList) {
+        return Array.prototype.slice.call(nodeList);
+      };
+
       WatchDOMFlags.prototype.elToString = function(node) {
-        var domArray, elString, key, value, _ref;
+        var domArray, elString, key, value, _i, _len, _ref;
         domArray = [node.tagName];
         _ref = node.attributes;
-        for (key in _ref) {
-          if (!__hasProp.call(_ref, key)) continue;
+        for (key = _i = 0, _len = _ref.length; _i < _len; key = ++_i) {
           value = _ref[key];
-          if (($.isNumeric(key)) && (value.name !== "domflag")) {
+          if (value.name !== "domflag") {
             domArray.push("" + value.name + "='" + value.value + "'");
           }
         }
@@ -153,6 +117,10 @@
 
       WatchDOMFlags.prototype.addNodesToPanel = function(newNodes) {
         var el, elString, index, node, panelItems, _i, _len;
+        newNodes = this.nodeListToArray(newNodes);
+        if (document.getElementById('domflags-panel') == null) {
+          this.appendDomflagsPanel();
+        }
         panelItems = document.getElementsByClassName('domflags-li');
         for (_i = 0, _len = newNodes.length; _i < _len; _i++) {
           node = newNodes[_i];
@@ -160,7 +128,7 @@
           if (node.hasAttribute('domflag')) {
             this.cacheDomflags();
             index = $(this.domflags).index(node);
-            this.flaggedElements.splice(index, 0, elString);
+            this.flagStrings.splice(index, 0, elString);
             el = "<domflags-li class='domflags-li' data-key='" + index + "'>" + elString + "</domflags-li>";
             if (panelItems.length > 0) {
               if (index >= 1) {
@@ -183,7 +151,7 @@
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           node = _ref[_i];
           index = $(this.domflags).index(node);
-          this.flaggedElements.splice(index, 1);
+          this.flagStrings.splice(index, 1);
           $(panelItems[index]).remove();
         }
         this.cacheDomflags();
@@ -233,7 +201,7 @@
                         if (!__hasProp.call(_ref1, key)) continue;
                         value = _ref1[key];
                         if (value.name === "domflag") {
-                          childrenArray = Array.prototype.slice.call(node.querySelectorAll("[domflag]"));
+                          childrenArray = this.nodeListToArray(node.querySelectorAll("[domflag]"));
                           nodeChange.panelArray.push(node);
                           _results1.push((function() {
                             var _i, _len, _results2;
@@ -249,7 +217,7 @@
                         }
                       }
                       return _results1;
-                    })());
+                    }).call(_this));
                   }
                   return _results;
                 }

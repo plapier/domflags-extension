@@ -12,52 +12,22 @@ $(document).ready ->
   class WatchDOMFlags
     constructor: (domflags) ->
       @domflags = domflags
-      @domflagsPanel = $('#domflags-panel')
+      @domflagsPanel = undefined
       @panelList = undefined
-      @flaggedElements = []
-      @constructFlagEls()
+      @flagStrings = []
+
+      @backgroundListener()
       @setupDomObserver()
 
-
-    constructFlagEls: ->
-      if @domflags.length > 0
-        for own key of @domflags
-          if $.isNumeric(key)
-            elString = @elToString(@domflags[key])
-            @flaggedElements.push(elString)
-
-        @backgroundListener()
-
-
     backgroundListener: ->
-      ## Recreate contextMenu when devtools is open and page is reloaded
-      @pageReloaded()
-
-      unless @domflagsPanel.is(":visible") ## prevent duplicate listeners
-        ## Receive request for flags. Send flags to background.js
-        chrome.runtime.onMessage.addListener (message, sender, sendResponse) =>
+      ## Receive request for flags. Send flags to background.js
+      chrome.runtime.onMessage.addListener (message, sender, sendResponse) =>
+        if @domflags.length > 0
           if message is "remove"
-            @domflagsPanel.remove()
+            $(@domflagsPanel).remove()
 
           else if message is "create"
-            sendResponse flags: @flaggedElements
-            @createDomflagsPanel()
-
-
-    pageReloaded: ->
-      chrome.runtime.sendMessage name: "pageReloaded"
-
-    createDomflagsPanel: ->
-      unless @domflagsPanel.is(":visible") ## prevent duplicates
-        @appendDomflagsPanel()
-
-      elements = ""
-      for own key, value of @flaggedElements
-        if $.isNumeric(key)
-          el = "<domflags-li class='domflags-li' data-key='#{key}'>#{value}</domflags-li>"
-          elements = "#{elements} #{el}"
-
-      @panelList.append(elements)
+            @addNodesToPanel(@domflags)
 
 
     appendDomflagsPanel: ->
@@ -69,14 +39,13 @@ $(document).ready ->
               </domflags-panel>
               """
       $(document.body).append html
-      @domflagsPanel = $('#domflags-panel')
-      @panelList = @domflagsPanel.find('.domflags-ol')
-      @setupDomPanelListeners()
+      @domflagsPanel = document.getElementById('domflags-panel')
+      @panelList = $(@domflagsPanel).find('.domflags-ol')
+      @createPanelListeners()
 
 
-    setupDomPanelListeners: ->
-      @domflagsPanel.get(0).addEventListener 'click', (event) =>
-        # console.log event, event.target.className
+    createPanelListeners: ->
+      @domflagsPanel.addEventListener 'click', (event) =>
         if event.target.className is 'domflags-li'
           key = $(event.target).attr('data-key')
           chrome.runtime.sendMessage
@@ -84,14 +53,17 @@ $(document).ready ->
             key: key
 
         else if event.target.className is 'domflags-header'
-          if @domflagsPanel.hasClass('opened')
+          if @domflagsPanel.classList.contains('opened')
             listHeight = @panelList.outerHeight() + 1;
-            @domflagsPanel.removeClass('opened').addClass('closed')
-            @domflagsPanel.css('transform', "translateY(#{listHeight}px)")
+            @domflagsPanel.classList.remove('opened')
+            @domflagsPanel.classList.add('closed')
 
-          else if @domflagsPanel.hasClass('closed')
-            @domflagsPanel.removeClass('closed').addClass('opened')
-            @domflagsPanel.css('transform', "translateY(0px)")
+          else if @domflagsPanel.classList.contains('closed')
+            listHeight = 0
+            @domflagsPanel.classList.remove('closed')
+            @domflagsPanel.classList.add('opened')
+
+          $(@domflagsPanel).css('transform', "translateY(#{listHeight}px)")
 
         else if event.target.classList[0] is 'domflags-button'
           targetPos = event.target.classList[1]
@@ -99,14 +71,18 @@ $(document).ready ->
           if      targetPos is "left"  then oldPos = "right"
           else if targetPos is "right" then oldPos = "left"
 
-          @domflagsPanel.removeClass(oldPos).addClass(targetPos)
-          $(event.target).removeClass(targetPos).addClass(oldPos)
+          @domflagsPanel.classList.remove(oldPos)
+          @domflagsPanel.classList.add(targetPos)
+          event.target.classList.remove(targetPos)
+          event.target.classList.add(oldPos)
 
+    nodeListToArray: (nodeList) ->
+      Array::slice.call(nodeList)
 
     elToString: (node) ->
       domArray = [node.tagName]
-      for own key, value of node.attributes
-        if ($.isNumeric(key)) and (value.name isnt "domflag")
+      for value, key in node.attributes
+        if value.name isnt "domflag"
           domArray.push("#{value.name}='#{value.value}'")
       elString = domArray.join(' ')
       return elString
@@ -119,6 +95,10 @@ $(document).ready ->
       tag.setAttribute 'data-key', i for tag, i in tags
 
     addNodesToPanel: (newNodes) ->
+      newNodes = @nodeListToArray(newNodes)
+      unless document.getElementById('domflags-panel')?
+        @appendDomflagsPanel()
+
       panelItems = document.getElementsByClassName('domflags-li')
       for node in newNodes
         elString = @elToString(node)
@@ -126,7 +106,7 @@ $(document).ready ->
         if node.hasAttribute('domflag')
           @cacheDomflags()
           index = $(@domflags).index(node)
-          @flaggedElements.splice(index, 0, elString)
+          @flagStrings.splice(index, 0, elString)
           el = "<domflags-li class='domflags-li' data-key='#{index}'>#{elString}</domflags-li>"
 
           if panelItems.length > 0
@@ -142,7 +122,7 @@ $(document).ready ->
       panelItems = document.getElementsByClassName('domflags-li')
       for node in deletedNodes.slice(0).reverse()
         index = $(@domflags).index(node)
-        @flaggedElements.splice(index, 1)
+        @flagStrings.splice(index, 1)
         $(panelItems[index]).remove()
       @cacheDomflags()
       @calibrateIndexes()
@@ -175,7 +155,7 @@ $(document).ready ->
                 for own key, value of node.attributes
                   if value.name is "domflag"
                     ## build a list of nodes that are added / removed
-                    childrenArray = Array::slice.call(node.querySelectorAll("[domflag]"))
+                    childrenArray = @nodeListToArray(node.querySelectorAll("[domflag]"))
                     nodeChange.panelArray.push(node)
                     nodeChange.panelArray.push(item) for item in childrenArray
                     # console.log "DOMFlag Added/Removed", node, mutation

@@ -63,17 +63,12 @@
             name: message.name,
             key: message.key
           });
-          return trackEvent();
-        } else if (message.name === 'pageReloaded') {
-          return chrome.tabs.insertCSS(tabId, {
-            file: "src/inject/inject.css"
-          }, function() {
-            return togglePanel("create", tabId, tabPort);
-          });
+          trackEvent();
         }
       };
       pageReload = function(tabId, changeInfo, tab) {
         if (changeInfo.status === 'complete') {
+          togglePanel("create", tabId, tabPort);
           return chrome.storage.sync.get({
             autoInspectReload: true
           }, function(items) {
