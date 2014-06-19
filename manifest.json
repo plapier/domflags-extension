@@ -44,6 +44,9 @@
       ]
     }
   ],
+  "web_accessible_resources": [
+    "src/inject/inject.css"
+  ],
   "commands": {
     "toggle_domflag": {
       "suggested_key": {

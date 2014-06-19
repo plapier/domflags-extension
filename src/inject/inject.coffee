@@ -14,6 +14,7 @@ $(document).ready ->
       @domflags = domflags
       @domflagsPanel = undefined
       @panelList = undefined
+      @shadowRoot = undefined
       @flagStrings = []
 
       @backgroundListener()
@@ -23,23 +24,31 @@ $(document).ready ->
       ## Receive requests from background script
       chrome.runtime.onMessage.addListener (message, sender, sendResponse) =>
         if message is "remove"
-          $(@domflagsPanel).remove()
+          @domflagsPanel.remove()
+          @domflagsPanel = @shadowRoot.getElementById('domflags-panel')
 
         if message is "create" and @domflags.length > 0
-            @addNodesToPanel(@domflags)
+          @addNodesToPanel(@domflags)
 
 
     appendDomflagsPanel: ->
-      html =  """
+      cssPath = chrome.extension.getURL("src/inject/inject.css")
+      styleTag = """<style type="text/css" media="screen">@import url(#{cssPath});</style>"""
+      panelHTML =  """
               <domflags-panel id="domflags-panel" class="bottom left opened">
                 <domflags-header class="domflags-header">DOMFLAGS</domflags-header>
                 <domflags-button class="domflags-button right"></domflags-button>
                 <domflags-ol class="domflags-ol"></domflags-ol>
               </domflags-panel>
               """
-      $(document.body).append html
-      @domflagsPanel = document.getElementById('domflags-panel')
-      @panelList = $(@domflagsPanel).find('.domflags-ol')
+      unless document.getElementById('domflags-root')?
+        $(document.body).append '<domflags id="domflags-root"></domflags>' # native JS bug
+        @shadowRoot = document.querySelector('#domflags-root').createShadowRoot()
+        @shadowRoot.innerHTML = styleTag
+
+      @shadowRoot.innerHTML += panelHTML
+      @domflagsPanel = @shadowRoot.getElementById('domflags-panel')
+      @panelList = @domflagsPanel.querySelector('.domflags-ol')
       @createPanelListeners()
 
 
@@ -53,7 +62,7 @@ $(document).ready ->
 
         else if event.target.className is 'domflags-header'
           if @domflagsPanel.classList.contains('opened')
-            listHeight = @panelList.outerHeight() + 1;
+            listHeight = $(@panelList).outerHeight() + 1;
             @domflagsPanel.classList.remove('opened')
             @domflagsPanel.classList.add('closed')
 
@@ -90,15 +99,15 @@ $(document).ready ->
       @domflags = document.querySelectorAll('[domflag]')
 
     calibrateIndexes: ->
-      tags = @panelList[0].getElementsByTagName('domflags-li')
+      tags = @panelList.getElementsByTagName('domflags-li')
       tag.setAttribute 'data-key', i for tag, i in tags
 
     addNodesToPanel: (newNodes) ->
       newNodes = @nodeListToArray(newNodes)
-      unless document.getElementById('domflags-panel')?
+      unless @domflagsPanel?
         @appendDomflagsPanel()
 
-      panelItems = document.getElementsByClassName('domflags-li')
+      panelItems = @domflagsPanel.getElementsByClassName('domflags-li')
       for node in newNodes
         elString = @elToString(node)
 
@@ -114,11 +123,11 @@ $(document).ready ->
             else
               $(panelItems[0]).before(el)
           else
-            @panelList.append(el)
+            @panelList.innerHTML += el
       @calibrateIndexes()
 
     removeNodesFromPanel: (deletedNodes) ->
-      panelItems = document.getElementsByClassName('domflags-li')
+      panelItems = @domflagsPanel.getElementsByClassName('domflags-li')
       for node in deletedNodes.slice(0).reverse()
         index = $(@domflags).index(node)
         @flagStrings.splice(index, 1)

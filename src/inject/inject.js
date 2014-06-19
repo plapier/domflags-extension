@@ -17,6 +17,7 @@
         this.domflags = domflags;
         this.domflagsPanel = void 0;
         this.panelList = void 0;
+        this.shadowRoot = void 0;
         this.flagStrings = [];
         this.backgroundListener();
         this.setupDomObserver();
@@ -26,7 +27,8 @@
         return chrome.runtime.onMessage.addListener((function(_this) {
           return function(message, sender, sendResponse) {
             if (message === "remove") {
-              $(_this.domflagsPanel).remove();
+              _this.domflagsPanel.remove();
+              _this.domflagsPanel = _this.shadowRoot.getElementById('domflags-panel');
             }
             if (message === "create" && _this.domflags.length > 0) {
               return _this.addNodesToPanel(_this.domflags);
@@ -36,11 +38,18 @@
       };
 
       WatchDOMFlags.prototype.appendDomflagsPanel = function() {
-        var html;
-        html = "<domflags-panel id=\"domflags-panel\" class=\"bottom left opened\">\n  <domflags-header class=\"domflags-header\">DOMFLAGS</domflags-header>\n  <domflags-button class=\"domflags-button right\"></domflags-button>\n  <domflags-ol class=\"domflags-ol\"></domflags-ol>\n</domflags-panel>";
-        $(document.body).append(html);
-        this.domflagsPanel = document.getElementById('domflags-panel');
-        this.panelList = $(this.domflagsPanel).find('.domflags-ol');
+        var cssPath, panelHTML, styleTag;
+        cssPath = chrome.extension.getURL("src/inject/inject.css");
+        styleTag = "<style type=\"text/css\" media=\"screen\">@import url(" + cssPath + ");</style>";
+        panelHTML = "<domflags-panel id=\"domflags-panel\" class=\"bottom left opened\">\n  <domflags-header class=\"domflags-header\">DOMFLAGS</domflags-header>\n  <domflags-button class=\"domflags-button right\"></domflags-button>\n  <domflags-ol class=\"domflags-ol\"></domflags-ol>\n</domflags-panel>";
+        if (document.getElementById('domflags-root') == null) {
+          $(document.body).append('<domflags id="domflags-root"></domflags>');
+          this.shadowRoot = document.querySelector('#domflags-root').createShadowRoot();
+          this.shadowRoot.innerHTML = styleTag;
+        }
+        this.shadowRoot.innerHTML += panelHTML;
+        this.domflagsPanel = this.shadowRoot.getElementById('domflags-panel');
+        this.panelList = this.domflagsPanel.querySelector('.domflags-ol');
         return this.createPanelListeners();
       };
 
@@ -56,7 +65,7 @@
               });
             } else if (event.target.className === 'domflags-header') {
               if (_this.domflagsPanel.classList.contains('opened')) {
-                listHeight = _this.panelList.outerHeight() + 1;
+                listHeight = $(_this.panelList).outerHeight() + 1;
                 _this.domflagsPanel.classList.remove('opened');
                 _this.domflagsPanel.classList.add('closed');
               } else if (_this.domflagsPanel.classList.contains('closed')) {
@@ -105,7 +114,7 @@
 
       WatchDOMFlags.prototype.calibrateIndexes = function() {
         var i, tag, tags, _i, _len, _results;
-        tags = this.panelList[0].getElementsByTagName('domflags-li');
+        tags = this.panelList.getElementsByTagName('domflags-li');
         _results = [];
         for (i = _i = 0, _len = tags.length; _i < _len; i = ++_i) {
           tag = tags[i];
@@ -117,10 +126,10 @@
       WatchDOMFlags.prototype.addNodesToPanel = function(newNodes) {
         var el, elString, index, node, panelItems, _i, _len;
         newNodes = this.nodeListToArray(newNodes);
-        if (document.getElementById('domflags-panel') == null) {
+        if (this.domflagsPanel == null) {
           this.appendDomflagsPanel();
         }
-        panelItems = document.getElementsByClassName('domflags-li');
+        panelItems = this.domflagsPanel.getElementsByClassName('domflags-li');
         for (_i = 0, _len = newNodes.length; _i < _len; _i++) {
           node = newNodes[_i];
           elString = this.elToString(node);
@@ -136,7 +145,7 @@
                 $(panelItems[0]).before(el);
               }
             } else {
-              this.panelList.append(el);
+              this.panelList.innerHTML += el;
             }
           }
         }
@@ -145,7 +154,7 @@
 
       WatchDOMFlags.prototype.removeNodesFromPanel = function(deletedNodes) {
         var index, node, panelItems, _i, _len, _ref;
-        panelItems = document.getElementsByClassName('domflags-li');
+        panelItems = this.domflagsPanel.getElementsByClassName('domflags-li');
         _ref = deletedNodes.slice(0).reverse();
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           node = _ref[_i];
