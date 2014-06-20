@@ -86,15 +86,33 @@ label {
 }
 
 footer {
-  font-size: 12px;
   text-align: center;
-  padding: 10px 0 0;
+  padding: 8px 20px 0;
+
+  span {
+    font-size: 11px;
+    color: #aaa;
+  }
 
   a {
+    border-bottom: 1px solid #bbb;
     color: #999;
+    font-size: 12px;
+    line-height: 1;
+    text-decoration: none;
 
-    &:first-child {
-      margin-right: 10px;
+    $m: 5px;
+    &:first-of-type {
+      margin-right: $m;
     }
+
+    &:nth-of-type(2) {
+      margin-left: $m;
+      // margin-right: $m;
+    }
+
+    // &:nth-of-type(3) {
+      // margin-left: $m;
+    // }
   }
 }
