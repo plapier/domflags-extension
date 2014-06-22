@@ -7,7 +7,7 @@ body {
   font-family: "Avenir Next", "Avenir", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
   margin: 0 auto;
   padding: 20px 20px 10px 20px;
-  width: 350px;
+  width: 375px;
 }
 
 section.main {
@@ -43,9 +43,25 @@ p {
   margin-top: 0;
 }
 
+form {
+  padding: 20px;
+}
+
 fieldset {
   border: 0;
+  margin-bottom: 20px;
   padding: 0;
+}
+
+fieldset.auto-inspect {
+  div {
+    margin-left: 5px;
+  }
+}
+
+p.title {
+  font-weight: 600;
+  margin-bottom: 0.6em;
 }
 
 div.input {
@@ -53,22 +69,8 @@ div.input {
   line-height: 1.3em;
 }
 
-fieldset.auto-inspect {
-  p {
-    font-weight: 600;
-    margin-bottom: 0.6em;
-  }
-
-  div {
-    margin-left: 5px;
-  }
-}
-
-form {
-  padding: 20px;
-}
-
 label {
+  font-size: 0.95rem;
   margin: 10px 0;
   position: relative;
 
@@ -82,6 +84,30 @@ label {
     display: inline-block;
     vertical-align: top;
     margin-left: 28px;
+  }
+}
+
+section.keyboard-shortcuts {
+  font-size: 0.9rem;
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding-left: 10px;
+  }
+
+  li {
+    margin-bottom: 0.3em;
+  }
+
+  i {
+    font-weight: 600;
+  }
+
+  .small {
+    color: #888;
+    font-size: 0.75rem;
+    margin-top: 10px;
   }
 }
 

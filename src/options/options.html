@@ -14,7 +14,7 @@
       </header>
       <form>
         <fieldset class="auto-inspect">
-          <p>Auto-focus the first domflag:</p>
+          <p class="title">Auto-focus the first domflag:</p>
           <div class="input">
             <label>
               <input type="checkbox" id="autoInspectOpen">
@@ -24,10 +24,19 @@
           <div class="input">
             <label>
               <input type="checkbox" id="autoInspectReload">
-              <span>on page <em>reload</em> with DevTools open</span>
+              <span>on page <em>reload</em> (with DevTools open)</span>
             </label>
           </div>
         </fieldset>
+
+        <section class="keyboard-shortcuts">
+          <p class="title">Keyboard shortcuts:</p>
+          <ul>
+            <li><i>Opt + Shift + D</i>: add/remove 'domflag'</li>
+            <li><i>Opt + Shift + [1..3]</i>: inspect domflag</li>
+            <li class="small">Set additional keyboard shortcuts [4..10] in chrome://extensions/configureCommands</li>
+          </ul>
+        </section>
       </form>
     </section>
     <footer>
