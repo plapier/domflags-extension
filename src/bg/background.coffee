@@ -49,26 +49,11 @@ chrome.runtime.onConnect.addListener (port) ->
         trackEvent()
         return
 
-    ## Auto-inspect first flag when page is reloaded
-    pageReload = (tabId, changeInfo, tab) ->
-      return if !ports[tabId]? ## return if port isnt open
-
-      if changeInfo.status is 'complete'
-        togglePanel("create", tabId, tabPort) ## recreate panel
-        chrome.storage.sync.get autoInspectReload: true, (items) ->
-          if items.autoInspectReload
-            port.postMessage
-              name: "pageReloaded"
-              key: 0
-
     ## Init message passing on runtime
     chrome.runtime.onMessage.addListener(contentScript)
-    ## On page reloaded, init pageReload listener
-    chrome.tabs.onUpdated.addListener(pageReload)
 
     port.onDisconnect.addListener (port) ->
       chrome.runtime.onMessage.removeListener(contentScript)
-      chrome.tabs.onUpdated.removeListener(pageReload)
       togglePanel("remove", tabId, tabPort)
       delete ports[tabId]
 
@@ -80,20 +65,37 @@ chrome.runtime.onConnect.addListener (port) ->
       tabPort = ports[tabId].port
       togglePanel("create", tabId, tabPort)
 
-# Setup keyboard shortcuts
-# SendMessage to active tab / open port
-chrome.commands.onCommand.addListener (command) ->
+
+## Handle PageReload Events
+pageReload = (tabId, changeInfo, tab) ->
+  return if !ports[tabId]? ## verify tab has open port
+
+  tabPort = ports[tabId].port
+  if changeInfo.status is 'complete'
+    togglePanel("create", tabId, tabPort) ## recreate panel
+
+    ## Auto-inspect first flag when page is reloaded
+    chrome.storage.sync.get autoInspectReload: true, (items) ->
+      if items.autoInspectReload
+        tabPort.postMessage
+          name: "pageReloaded"
+          key: 0
+
+## Setup keyboard shortcuts
+keyboardShortcuts = (command) ->
   chrome.tabs.query currentWindow: true, active: true, (tabs) ->
     tabId = tabs[0].id
+    return if !ports[tabId]?
 
-    if ports[tabId]
-      port = ports[tabId].port
+    tabPort = ports[tabId].port
+    if command is "toggle_domflag"
+      tabPort.postMessage
+        name: "getInspectedEl"
 
-      if command is "toggle_domflag"
-        port.postMessage
-          name: "getInspectedEl"
+    else
+      tabPort.postMessage
+        name: "keyboardShortcut"
+        key: command
 
-      else
-        port.postMessage
-          name: "keyboardShortcut"
-          key: command
+chrome.tabs.onUpdated.addListener(pageReload)
+chrome.commands.onCommand.addListener(keyboardShortcuts)
