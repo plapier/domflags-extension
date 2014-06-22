@@ -67,6 +67,9 @@
         }
       };
       pageReload = function(tabId, changeInfo, tab) {
+        if (ports[tabId] == null) {
+          return;
+        }
         if (changeInfo.status === 'complete') {
           togglePanel("create", tabId, tabPort);
           return chrome.storage.sync.get({

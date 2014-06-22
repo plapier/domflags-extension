@@ -51,6 +51,8 @@ chrome.runtime.onConnect.addListener (port) ->
 
     ## Auto-inspect first flag when page is reloaded
     pageReload = (tabId, changeInfo, tab) ->
+      return if !ports[tabId]? ## return if port isnt open
+
       if changeInfo.status is 'complete'
         togglePanel("create", tabId, tabPort) ## recreate panel
         chrome.storage.sync.get autoInspectReload: true, (items) ->
