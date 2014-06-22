@@ -12,8 +12,8 @@ $width: 270px;
   overflow: hidden;
   position: fixed;
   text-align: left;
-  -webkit-transition: all 0.2s ease;
-  transition:         all 0.2s ease;
+  -webkit-transition: -webkit-transform 0.2s ease;
+  transition:         transform 0.2s ease;
   width: $width;
   z-index: 2147483647; //max value
 
