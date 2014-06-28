@@ -95,17 +95,11 @@
       };
 
       WatchDOMFlags.prototype.elToString = function(node) {
-        var domArray, elString, key, value, _i, _len, _ref;
-        domArray = [node.tagName];
-        _ref = node.attributes;
-        for (key = _i = 0, _len = _ref.length; _i < _len; key = ++_i) {
-          value = _ref[key];
-          if (value.name !== "domflag") {
-            domArray.push("" + value.name + "='" + value.value + "'");
-          }
-        }
-        elString = domArray.join(' ');
-        return elString;
+        var className, idName, tagName;
+        tagName = node.tagName.toLowerCase();
+        idName = node.id ? "#" + node.id : "";
+        className = node.className ? "." + node.className : "";
+        return tagName + idName + className;
       };
 
       WatchDOMFlags.prototype.cacheDomflags = function() {
@@ -170,11 +164,12 @@
         var config, observer;
         observer = new MutationObserver((function(_this) {
           return function(mutations) {
-            var deletedNodes, newNodes;
+            var addedNodes, childrenArray, deletedNodes, item, key, mutation, newNodes, node, nodeChange, removedNodes, value, _i, _j, _len, _len1, _ref, _ref1;
             newNodes = [];
             deletedNodes = [];
-            mutations.forEach(function(mutation) {
-              var addedNodes, childrenArray, item, key, node, nodeChange, removedNodes, value, _ref, _results;
+            for (_i = 0, _len = mutations.length; _i < _len; _i++) {
+              mutation = mutations[_i];
+              console.log(mutation);
               if (mutation.type === "childList") {
                 addedNodes = {
                   mutation: mutation.addedNodes,
@@ -196,49 +191,35 @@
                 })();
                 if (nodeChange) {
                   _ref = nodeChange.mutation;
-                  _results = [];
                   for (key in _ref) {
                     if (!__hasProp.call(_ref, key)) continue;
                     value = _ref[key];
                     node = nodeChange.mutation[key];
-                    _results.push((function() {
-                      var _ref1, _results1;
-                      _ref1 = node.attributes;
-                      _results1 = [];
-                      for (key in _ref1) {
-                        if (!__hasProp.call(_ref1, key)) continue;
-                        value = _ref1[key];
-                        if (value.name === "domflag") {
-                          childrenArray = this.nodeListToArray(node.querySelectorAll("[domflag]"));
-                          nodeChange.panelArray.push(node);
-                          _results1.push((function() {
-                            var _i, _len, _results2;
-                            _results2 = [];
-                            for (_i = 0, _len = childrenArray.length; _i < _len; _i++) {
-                              item = childrenArray[_i];
-                              _results2.push(nodeChange.panelArray.push(item));
-                            }
-                            return _results2;
-                          })());
-                        } else {
-                          _results1.push(void 0);
+                    _ref1 = node.attributes;
+                    for (key in _ref1) {
+                      if (!__hasProp.call(_ref1, key)) continue;
+                      value = _ref1[key];
+                      if (value.name === "domflag") {
+                        childrenArray = _this.nodeListToArray(node.querySelectorAll("[domflag]"));
+                        nodeChange.panelArray.push(node);
+                        for (_j = 0, _len1 = childrenArray.length; _j < _len1; _j++) {
+                          item = childrenArray[_j];
+                          nodeChange.panelArray.push(item);
                         }
                       }
-                      return _results1;
-                    }).call(_this));
+                    }
                   }
-                  return _results;
                 }
               } else if (mutation.type === "attributes") {
                 if ((mutation.oldValue === "") || (mutation.oldValue === null)) {
                   if (mutation.target.hasAttribute('domflag')) {
-                    return newNodes.push(mutation.target);
+                    newNodes.push(mutation.target);
                   } else {
-                    return deletedNodes.push(mutation.target);
+                    deletedNodes.push(mutation.target);
                   }
                 }
               }
-            });
+            }
             if (deletedNodes.length > 0) {
               _this.removeNodesFromPanel(deletedNodes);
             }
@@ -248,9 +229,9 @@
           };
         })(this));
         config = {
-          attributeFilter: ['domflag'],
-          attributeOldValue: false,
           attributes: true,
+          attributeFilter: ['domflag'],
+          attributeOldValue: true,
           childList: true,
           subtree: true
         };

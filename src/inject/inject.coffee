@@ -88,12 +88,10 @@ $(document).ready ->
       Array::slice.call(nodeList)
 
     elToString: (node) ->
-      domArray = [node.tagName]
-      for value, key in node.attributes
-        if value.name isnt "domflag"
-          domArray.push("#{value.name}='#{value.value}'")
-      elString = domArray.join(' ')
-      return elString
+      tagName   = node.tagName.toLowerCase()
+      idName    = if node.id then "#" + node.id else ""
+      className = if node.className then "." + node.className else ""
+      return tagName + idName + className
 
     cacheDomflags: ->
       @domflags = document.querySelectorAll('[domflag]')
@@ -141,10 +139,10 @@ $(document).ready ->
       observer = new MutationObserver((mutations) =>
         newNodes = []
         deletedNodes = []
-        mutations.forEach (mutation) =>
+        for mutation in mutations
           ## A node has been added / deleted
+          console.log mutation
           if mutation.type is "childList"
-
             addedNodes =
               mutation: mutation.addedNodes
               panelArray: newNodes
@@ -181,9 +179,9 @@ $(document).ready ->
       )
 
       config =
-        attributeFilter: ['domflag']
-        attributeOldValue: false
         attributes: true
+        attributeFilter: ['domflag']
+        attributeOldValue: true
         childList: true
         subtree: true
 
