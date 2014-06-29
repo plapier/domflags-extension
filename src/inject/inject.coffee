@@ -141,7 +141,6 @@ $(document).ready ->
         deletedNodes = []
         for mutation in mutations
           ## A node has been added / deleted
-          console.log mutation
           if mutation.type is "childList"
             addedNodes =
               mutation: mutation.addedNodes
@@ -168,11 +167,10 @@ $(document).ready ->
 
           ## Attribute has been added / deleted
           else if mutation.type is "attributes"
-            if (mutation.oldValue == "") or (mutation.oldValue == null)
-              if mutation.target.hasAttribute('domflag')
-                newNodes.push(mutation.target)
-              else
-                deletedNodes.push(mutation.target)
+            if mutation.target.hasAttribute('domflag')
+              newNodes.push(mutation.target)
+            else
+              deletedNodes.push(mutation.target)
 
         @removeNodesFromPanel(deletedNodes) if deletedNodes.length > 0
         @addNodesToPanel(newNodes) if newNodes.length > 0
@@ -181,7 +179,7 @@ $(document).ready ->
       config =
         attributes: true
         attributeFilter: ['domflag']
-        attributeOldValue: true
+        attributeOldValue: false
         childList: true
         subtree: true
 

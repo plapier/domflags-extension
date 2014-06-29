@@ -169,7 +169,6 @@
             deletedNodes = [];
             for (_i = 0, _len = mutations.length; _i < _len; _i++) {
               mutation = mutations[_i];
-              console.log(mutation);
               if (mutation.type === "childList") {
                 addedNodes = {
                   mutation: mutation.addedNodes,
@@ -211,12 +210,10 @@
                   }
                 }
               } else if (mutation.type === "attributes") {
-                if ((mutation.oldValue === "") || (mutation.oldValue === null)) {
-                  if (mutation.target.hasAttribute('domflag')) {
-                    newNodes.push(mutation.target);
-                  } else {
-                    deletedNodes.push(mutation.target);
-                  }
+                if (mutation.target.hasAttribute('domflag')) {
+                  newNodes.push(mutation.target);
+                } else {
+                  deletedNodes.push(mutation.target);
                 }
               }
             }
@@ -231,7 +228,7 @@
         config = {
           attributes: true,
           attributeFilter: ['domflag'],
-          attributeOldValue: true,
+          attributeOldValue: false,
           childList: true,
           subtree: true
         };
