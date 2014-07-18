@@ -7,15 +7,16 @@ $width: 270px;
   display: block;
   font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
   font-size: 11px;
-  -webkit-font-smoothing: subpixel-antialiased;
   line-height: 1.2em;
   overflow: hidden;
   position: fixed;
   text-align: left;
-  -webkit-transition: -webkit-transform 0.2s ease;
-  transition:         transform 0.2s ease;
   width: $width;
   z-index: 2147483647; //max value
+
+  -webkit-font-smoothing: subpixel-antialiased;
+  -webkit-transition: -webkit-transform 0.2s ease;
+  transition:                 transform 0.2s ease;
 
   &.right {
     right: 0;
@@ -45,10 +46,6 @@ $width: 270px;
 
   &.closed:hover {
     cursor: n-resize;
-  }
-
-  &, * {
-    all: initial;
   }
 
   .domflags-header {
