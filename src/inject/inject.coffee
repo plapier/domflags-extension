@@ -27,6 +27,15 @@ $(document).ready ->
       @backgroundListener()
       @setupDomObserver()
 
+    _cacheDomflags: ->
+      @domflags = document.querySelectorAll('[domflag]')
+
+    _getPanelItems: ->
+      @domflagsPanel.getElementsByClassName('domflags-li')
+
+    _calibrateIndexes: ->
+      panelItem.setAttribute 'data-key', i for panelItem, i in @_getPanelItems()
+
     backgroundListener: ->
       ## Receive requests from background script
       chrome.runtime.onMessage.addListener (message, sender, sendResponse) =>
@@ -98,44 +107,44 @@ $(document).ready ->
       className = if node.className then "." + node.className else ""
       return tagName + idName + className
 
-    cacheDomflags: ->
-      @domflags = document.querySelectorAll('[domflag]')
-
-    calibrateIndexes: ->
-      tags = @panelList.getElementsByTagName('domflags-li')
-      tag.setAttribute 'data-key', i for tag, i in tags
 
     addNodesToPanel: (newNodes) ->
       unless @domflagsPanel?
         @appendDomflagsPanel()
 
-      panelItems = @domflagsPanel.getElementsByClassName('domflags-li')
+      panelItems = @_getPanelItems()
       for node in newNodes
         elString = @elToString(node)
 
         if node.hasAttribute('domflag')
-          @cacheDomflags()
+          @_cacheDomflags()
           index = $(@domflags).index(node)
           @flagStrings.splice(index, 0, elString)
           el = "<domflags-li class='domflags-li' data-key='#{index}'>#{elString}</domflags-li>"
 
-          if panelItems.length > 0
+          addItems = =>
+            @panelList.innerHTML += el
+
+          positionItems = ->
             if index >= 1
               $(panelItems[index - 1]).after(el)
             else
               $(panelItems[0]).before(el)
-          else
-            @panelList.innerHTML += el
-      @calibrateIndexes()
+
+          switch
+            when panelItems.length > 0 then positionItems()
+            else addItems()
+
+      @_calibrateIndexes()
 
     removeNodesFromPanel: (deletedNodes) ->
-      panelItems = @domflagsPanel.getElementsByClassName('domflags-li')
+      panelItems = @_getPanelItems()
       for node in deletedNodes.slice(0).reverse()
         index = $(@domflags).index(node)
         @flagStrings.splice(index, 1)
         $(panelItems[index]).remove()
-      @cacheDomflags()
-      @calibrateIndexes()
+      @_cacheDomflags()
+      @_calibrateIndexes()
 
     # // DOM OBSERVER
     # /////////////////////////////////
