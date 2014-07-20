@@ -28,7 +28,8 @@ $(document).ready ->
           @domflagsPanel = @shadowRoot.getElementById('domflags-panel')
 
         if message is "create" and @domflags.length > 0
-          @addNodesToPanel(@domflags)
+          unless @domflagsPanel ## prevent duplicates
+            @addNodesToPanel(@domflags)
 
 
     appendDomflagsPanel: ->
@@ -139,6 +140,7 @@ $(document).ready ->
       observer = new MutationObserver((mutations) =>
         newNodes = []
         deletedNodes = []
+
         for mutation in mutations
           ## A node has been added / deleted
           if mutation.type is "childList"
@@ -154,16 +156,19 @@ $(document).ready ->
               when removedNodes.mutation.length > 0 then removedNodes
               else undefined
 
-            if nodeChange
-              for own key, value of nodeChange.mutation
-                node = nodeChange.mutation[key]
-                for own key, value of node.attributes
-                  if value.name is "domflag"
-                    ## build a list of nodes that are added / removed
-                    childrenArray = @nodeListToArray(node.querySelectorAll("[domflag]"))
-                    nodeChange.panelArray.push(node)
-                    nodeChange.panelArray.push(item) for item in childrenArray
-                    # console.log "DOMFlag Added/Removed", node, mutation
+            continue if not nodeChange?
+
+            # console.log nodeChange, nodeChange.mutation
+            for node in nodeChange.mutation
+              continue if node.nodeName is "#text"
+
+              if (node.hasAttribute('domflag')) and (node not in nodeChange.panelArray)
+                nodeChange.panelArray.push(node)
+
+              for child in node.querySelectorAll('[domflag]')
+                nodeChange.panelArray.push(child) if child not in nodeChange.panelArray
+                continue
+              continue
 
           ## Attribute has been added / deleted
           else if mutation.type is "attributes"
@@ -171,7 +176,9 @@ $(document).ready ->
               newNodes.push(mutation.target)
             else
               deletedNodes.push(mutation.target)
+          continue
 
+        # console.log "Deleted", deletedNodes, "Added", newNodes
         @removeNodesFromPanel(deletedNodes) if deletedNodes.length > 0
         @addNodesToPanel(newNodes) if newNodes.length > 0
       )
