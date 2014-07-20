@@ -11,11 +11,18 @@
 $(document).ready ->
   class WatchDOMFlags
     constructor: (domflags) ->
-      @domflags = domflags
+      @domflags      = domflags
       @domflagsPanel = undefined
-      @panelList = undefined
-      @shadowRoot = undefined
-      @flagStrings = []
+      @panelList     = undefined
+      @shadowRoot    = undefined
+      @modifiedNodes = undefined
+      @flagStrings   = []
+      @configVars    =
+        attributes: true
+        attributeFilter: ['domflag']
+        attributeOldValue: false
+        childList: true
+        subtree: true
 
       @backgroundListener()
       @setupDomObserver()
@@ -138,59 +145,47 @@ $(document).ready ->
     # /////////////////////////////////
     setupDomObserver: ->
       observer = new MutationObserver((mutations) =>
-        newNodes = []
-        deletedNodes = []
-
+        @modifiedNodes = new: [], deleted: []
         for mutation in mutations
-          ## A node has been added / deleted
-          if mutation.type is "childList"
-            addedNodes =
-              mutation: mutation.addedNodes
-              panelArray: newNodes
-            removedNodes =
-              mutation: mutation.removedNodes
-              panelArray: deletedNodes
-
-            nodeChange = switch
-              when addedNodes.mutation.length   > 0 then addedNodes
-              when removedNodes.mutation.length > 0 then removedNodes
-              else undefined
-
-            continue if not nodeChange?
-
-            # console.log nodeChange, nodeChange.mutation
-            for node in nodeChange.mutation
-              continue if node.nodeName is "#text"
-
-              if (node.hasAttribute('domflag')) and (node not in nodeChange.panelArray)
-                nodeChange.panelArray.push(node)
-
-              for child in node.querySelectorAll('[domflag]')
-                nodeChange.panelArray.push(child) if child not in nodeChange.panelArray
-                continue
-              continue
-
-          ## Attribute has been added / deleted
-          else if mutation.type is "attributes"
-            if mutation.target.hasAttribute('domflag')
-              newNodes.push(mutation.target)
-            else
-              deletedNodes.push(mutation.target)
+          switch mutation.type
+            when "childList"  then @parseChildList(mutation)
+            when "attributes" then @parseAttrs(mutation)
           continue
 
-        # console.log "Deleted", deletedNodes, "Added", newNodes
-        @removeNodesFromPanel(deletedNodes) if deletedNodes.length > 0
-        @addNodesToPanel(newNodes) if newNodes.length > 0
+        @removeNodesFromPanel(@modifiedNodes.deleted) if @modifiedNodes.deleted.length > 0
+        @addNodesToPanel(@modifiedNodes.new) if @modifiedNodes.new.length > 0
       )
+      observer.observe document.body, @configVars
 
-      config =
-        attributes: true
-        attributeFilter: ['domflag']
-        attributeOldValue: false
-        childList: true
-        subtree: true
+    parseChildList: (mutation) ->
+      addedNodes =
+        mutation: mutation.addedNodes
+        panelArray: @modifiedNodes.new
+      removedNodes =
+        mutation: mutation.removedNodes
+        panelArray: @modifiedNodes.deleted
 
-      observer.observe document.body, config
+      nodeChange = switch
+        when addedNodes.mutation.length   > 0 then addedNodes
+        when removedNodes.mutation.length > 0 then removedNodes
+
+      push = (node) ->
+        nodeChange.panelArray.push(node) if node not in nodeChange.panelArray
+
+      return if not nodeChange?
+
+      for node in nodeChange.mutation
+        continue if node.nodeName is "#text"
+
+        if (node.hasAttribute('domflag'))
+          push(node)
+
+        for node in node.querySelectorAll('[domflag]')
+          push(node)
+
+    parseAttrs: (mutation) ->
+      if mutation.target.hasAttribute('domflag') then @modifiedNodes.new.push(mutation.target)
+      else @modifiedNodes.deleted.push(mutation.target)
 
   ## Instantiate WatchDOMFlags
   domflags = document.querySelectorAll('[domflag]')
