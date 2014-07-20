@@ -92,9 +92,6 @@ $(document).ready ->
           event.target.classList.remove(targetPos)
           event.target.classList.add(oldPos)
 
-    nodeListToArray: (nodeList) ->
-      Array::slice.call(nodeList)
-
     elToString: (node) ->
       tagName   = node.tagName.toLowerCase()
       idName    = if node.id then "#" + node.id else ""
@@ -109,7 +106,6 @@ $(document).ready ->
       tag.setAttribute 'data-key', i for tag, i in tags
 
     addNodesToPanel: (newNodes) ->
-      newNodes = @nodeListToArray(newNodes)
       unless @domflagsPanel?
         @appendDomflagsPanel()
 
