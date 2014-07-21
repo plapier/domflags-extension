@@ -26,7 +26,9 @@ class WatchDOMFlags
     @setupDomObserver()
 
   _cacheDomflagsPanel: ->
-    @domflagsPanel = @shadowRoot.getElementById('domflags-panel')
+    if @shadowRoot?
+      @domflagsPanel = @shadowRoot.getElementById('domflags-panel')
+    else @appendDomflagsPanel()
 
   _cacheDomflags: ->
     @domflags = document.querySelectorAll('[domflag]')
