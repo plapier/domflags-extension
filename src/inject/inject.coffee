@@ -79,7 +79,7 @@ class WatchDOMFlags
         when 'domflags-button' then triggerPanelPos(event)
 
     triggerPanel = (event) ->
-      key = $(event.target).attr('data-key')
+      key = event.target.getAttribute('data-key')
       chrome.runtime.sendMessage
         name: "panelClick"
         key: key
@@ -88,7 +88,7 @@ class WatchDOMFlags
       closePanel =
         remove: "opened"
         add: "closed"
-        height: $(@panelList).outerHeight() + 1;
+        height: @panelList.offsetHeight + 1
 
       openPanel =
         remove: "closed"
@@ -141,7 +141,7 @@ class WatchDOMFlags
 
       elString = @elToString(node)
       @_cacheDomflags()
-      index = $(@domflags).index(node)
+      index = [].indexOf.call(@domflags, node)
       @flagStrings.splice(index, 0, elString)
       el = "<domflags-li class='domflags-li' data-key='#{index}'>#{elString}</domflags-li>"
 
@@ -157,7 +157,7 @@ class WatchDOMFlags
 
     panelItems = @_getPanelItems()
     for node in deletedNodes.slice(0).reverse()
-      index = $(@domflags).index(node)
+      index = [].indexOf.call(@domflags, node)
       @flagStrings.splice(index, 1)
 
       panelItem = panelItems[index]
