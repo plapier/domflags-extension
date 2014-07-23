@@ -140,11 +140,11 @@ footer {
 
     &:nth-of-type(2) {
       margin-left: $m;
-      // margin-right: $m;
+      margin-right: $m;
     }
 
-    // &:nth-of-type(3) {
-      // margin-left: $m;
-    // }
+    &:nth-of-type(3) {
+      margin-left: $m;
+    }
   }
 }
