@@ -16,14 +16,14 @@ class WatchDOMFlags
     @shadowRoot    = undefined
     @modifiedNodes = undefined
     @flagStrings   = []
-    @configVars    =
+    @observerVars  =
       attributes: true
       attributeFilter: ['domflag']
       attributeOldValue: false
       childList: true
       subtree: true
     @backgroundListener()
-    @setupDomObserver()
+    @domObserver().observe document.body, @observerVars
 
   _cacheDomflagsPanel: ->
     if @shadowRoot?
@@ -38,6 +38,12 @@ class WatchDOMFlags
 
   _getPanelItems: ->
     @domflagsPanel.getElementsByClassName('domflags-li')
+
+  _elToString: (node) ->
+    tagName   = node.tagName.toLowerCase()
+    idName    = if node.id then "#" + node.id else ""
+    className = if node.className then "." + node.className else ""
+    return tagName + idName + className
 
   backgroundListener: ->
     chrome.runtime.onMessage.addListener (message, sender, sendResponse) =>
@@ -74,17 +80,17 @@ class WatchDOMFlags
   createPanelListeners: ->
     @domflagsPanel.addEventListener 'click', (event) =>
       switch event.target.classList[0]
-        when 'domflags-li'     then triggerPanel(event)
-        when 'domflags-header' then triggerHeader()
-        when 'domflags-button' then triggerPanelPos(event)
+        when 'domflags-li'     then _triggerPanel(event)
+        when 'domflags-header' then _triggerHeader()
+        when 'domflags-button' then _triggerPanelPos(event)
 
-    triggerPanel = (event) ->
+    _triggerPanel = (event) ->
       key = event.target.getAttribute('data-key')
       chrome.runtime.sendMessage
         name: "panelClick"
         key: key
 
-    triggerHeader = =>
+    _triggerHeader = =>
       closePanel =
         remove: "opened"
         add: "closed"
@@ -104,7 +110,7 @@ class WatchDOMFlags
       @domflagsPanel.classList.add panelSwitch.add
       $(@domflagsPanel).css('transform', "translateY(#{listHeight}px)")
 
-    triggerPanelPos = (event) =>
+    _triggerPanelPos = (event) =>
       targetPos = event.target.classList[1]
 
       switch targetPos
@@ -116,40 +122,34 @@ class WatchDOMFlags
       event.target.classList.remove(targetPos)
       event.target.classList.add(oldPos)
 
-  elToString: (node) ->
-    tagName   = node.tagName.toLowerCase()
-    idName    = if node.id then "#" + node.id else ""
-    className = if node.className then "." + node.className else ""
-    return tagName + idName + className
-
-
   addNodesToPanel: (newNodes) ->
+    _addNodes = (el) =>
+      @panelList.innerHTML += el
+
+    _positionNodes = (el, index) ->
+      if index > 0 then $(panelItems[index - 1]).after(el)
+      else $(panelItems[0]).before(el)
+
     unless @domflagsPanel?
       @appendDomflagsPanel()
 
     panelItems = @_getPanelItems()
 
-    addNodes = (el) =>
-      @panelList.innerHTML += el
-
-    positionNodes = (el, index) ->
-      if index > 0 then $(panelItems[index - 1]).after(el)
-      else $(panelItems[0]).before(el)
-
     for node in newNodes
       return if !node.hasAttribute('domflag')
 
-      elString = @elToString(node)
+      elString = @_elToString(node)
       @_cacheDomflags()
       index = [].indexOf.call(@domflags, node)
       @flagStrings.splice(index, 0, elString)
       el = "<domflags-li class='domflags-li' data-key='#{index}'>#{elString}</domflags-li>"
 
       switch
-        when panelItems.length > 0 then positionNodes(el, index)
-        else addNodes(el)
+        when panelItems.length > 0 then _positionNodes(el, index)
+        else _addNodes(el)
 
     @_calibrateIndexes()
+
 
   removeNodesFromPanel: (deletedNodes) ->
     @_cacheDomflagsPanel()
@@ -170,8 +170,8 @@ class WatchDOMFlags
 
   # // DOM OBSERVER
   # /////////////////////////////////
-  setupDomObserver: ->
-    observer = new MutationObserver((mutations) =>
+  domObserver: ->
+    new MutationObserver((mutations) =>
       @modifiedNodes = new: [], deleted: []
       for mutation in mutations
         switch mutation.type
@@ -182,7 +182,6 @@ class WatchDOMFlags
       @removeNodesFromPanel(@modifiedNodes.deleted) if @modifiedNodes.deleted.length > 0
       @addNodesToPanel(@modifiedNodes.new) if @modifiedNodes.new.length > 0
     )
-    observer.observe document.body, @configVars
 
   parseChildList: (mutation) ->
     addedNodes =
