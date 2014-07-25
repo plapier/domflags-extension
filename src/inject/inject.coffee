@@ -47,9 +47,10 @@ class WatchDOMFlags
     else @appendDomflagsPanel()
 
   _restorePersistedDomflags: ->
-    xpathsKeyWithDefault = xpaths: []
-    chrome.storage.sync.get xpathsKeyWithDefault, (persisted) ->
-      for xpath in persisted.xpaths
+    xpathCache = {}
+    xpathCache[location.origin] = []
+    chrome.storage.sync.get xpathCache, (persisted) ->
+      for xpath in persisted[location.origin]
         node = document.evaluate(xpath, document, null, FIRST_ORDERED_NODE_TYPE, null).singleNodeValue
         node.setAttribute('domflag', '')
 
@@ -58,7 +59,9 @@ class WatchDOMFlags
     xpaths = []
     for node in @domflags
       xpaths.push @_getXPath(node)
-    chrome.storage.sync.set xpaths: xpaths
+    xpathCache = {}
+    xpathCache[location.origin] = xpaths
+    chrome.storage.sync.set xpathCache
 
   _calibrateIndexes: ->
     panelItem.setAttribute 'data-key', i for panelItem, i in @_getPanelItems()
