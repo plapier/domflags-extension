@@ -8,6 +8,8 @@
   else
     el.setAttribute('domflag', '')
 
+ELEMENT_NODE_TYPE = 1
+
 class WatchDOMFlags
   constructor: (domflags) ->
     @domflags      = domflags
@@ -201,7 +203,7 @@ class WatchDOMFlags
     return if not nodeChange?
 
     for node in nodeChange.mutation
-      continue if node.nodeName is "#text"
+      continue if node.nodeType isnt ELEMENT_NODE_TYPE
 
       if (node.hasAttribute('domflag'))
         push(node)
