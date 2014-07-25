@@ -9,10 +9,13 @@
     el.setAttribute('domflag', '')
 
 ELEMENT_NODE_TYPE = 1
+FIRST_ORDERED_NODE_TYPE = 9
 
 class WatchDOMFlags
   constructor: ->
-    @domflags      = undefined
+    @domflags = []
+    @_restorePersistedDomflags()
+    @_cacheDomflags()
     @domflagsPanel = undefined
     @panelList     = undefined
     @shadowRoot    = undefined
@@ -28,13 +31,34 @@ class WatchDOMFlags
     @setupDomObserver()
     @backgroundListener()
 
+  _getXPath: (node) ->
+    xpath = ''
+    while true
+      break if node.nodeType isnt ELEMENT_NODE_TYPE
+      index = $(node.parentNode).children(node.tagName).index(node) + 1
+      xpathIndex = if (index > 1) then "[#{index}]" else ''
+      xpath = '/' + node.tagName.toLowerCase() + xpathIndex + xpath
+      node = node.parentNode
+    return xpath
+
   _cacheDomflagsPanel: ->
     if @shadowRoot?
       @domflagsPanel = @shadowRoot.getElementById('domflags-panel')
     else @appendDomflagsPanel()
 
+  _restorePersistedDomflags: ->
+    xpathsKeyWithDefault = xpaths: []
+    chrome.storage.sync.get xpathsKeyWithDefault, (persisted) ->
+      for xpath in persisted.xpaths
+        node = document.evaluate(xpath, document, null, FIRST_ORDERED_NODE_TYPE, null).singleNodeValue
+        node.setAttribute('domflag', '')
+
   _cacheDomflags: ->
     @domflags = document.querySelectorAll('[domflag]')
+    xpaths = []
+    for node in @domflags
+      xpaths.push @_getXPath(node)
+    chrome.storage.sync.set xpaths: xpaths
 
   _calibrateIndexes: ->
     panelItem.setAttribute 'data-key', i for panelItem, i in @_getPanelItems()
