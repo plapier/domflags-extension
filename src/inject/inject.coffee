@@ -49,7 +49,7 @@ class WatchDOMFlags
 
   backgroundListener: ->
     chrome.runtime.onMessage.addListener (message, sender, sendResponse) =>
-      if message is "remove"
+      if message is "remove" and @domflagsPanel?
         @domflagsPanel.parentNode.removeChild(@domflagsPanel)
         @_cacheDomflagsPanel()
 
