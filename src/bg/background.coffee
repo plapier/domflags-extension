@@ -11,19 +11,15 @@ _gaq.push ["_trackPageview"]
   s.parentNode.insertBefore ga, s
 )()
 
-trackEvent = ->
-  _gaq.push ['_trackEvent', 'Domflag', 'clicked']
-
 
 ###############
 
 togglePanel = (message, tabId, port) ->
-  chrome.tabs.sendMessage tabId, message, (response) ->
-    return
+  chrome.tabs.sendMessage(tabId, message)
 
 ports = []
 chrome.runtime.onConnect.addListener (port) ->
-  return false if port.name isnt "devtools"
+  return if port.name isnt "devtools"
 
   chrome.tabs.query currentWindow: true, active: true, (tabs) ->
     ## Create array of tabs with open ports
@@ -46,8 +42,6 @@ chrome.runtime.onConnect.addListener (port) ->
         port.postMessage
           name: message.name
           key: message.key
-        trackEvent()
-        return
 
     ## Init message passing on runtime
     chrome.runtime.onMessage.addListener(contentScript)
@@ -68,18 +62,18 @@ chrome.runtime.onConnect.addListener (port) ->
 
 ## Handle PageReload Events
 pageReload = (tabId, changeInfo, tab) ->
+  return if changeInfo.status isnt 'complete'
   return if !ports[tabId]? ## verify tab has open port
 
   tabPort = ports[tabId].port
-  if changeInfo.status is 'complete'
-    togglePanel("create", tabId, tabPort) ## recreate panel
+  togglePanel("create", tabId, tabPort) ## recreate panel
 
-    ## Auto-inspect first flag when page is reloaded
-    chrome.storage.sync.get autoInspectReload: true, (items) ->
-      if items.autoInspectReload
-        tabPort.postMessage
-          name: "pageReloaded"
-          key: 0
+  ## Auto-inspect first flag when page is reloaded
+  chrome.storage.sync.get autoInspectReload: true, (items) ->
+    if items.autoInspectReload
+      tabPort.postMessage
+        name: "pageReloaded"
+        key: 0
 
 ## Setup keyboard shortcuts
 keyboardShortcuts = (command) ->

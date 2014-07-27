@@ -11,8 +11,8 @@
 ELEMENT_NODE_TYPE = 1
 
 class WatchDOMFlags
-  constructor: (domflags) ->
-    @domflags      = domflags
+  constructor: ->
+    @domflags      = undefined
     @domflagsPanel = undefined
     @panelList     = undefined
     @shadowRoot    = undefined
@@ -26,6 +26,7 @@ class WatchDOMFlags
       childList: true
       subtree: true
     @setupDomObserver()
+    @observer.observe document.body, @observerVars
     @backgroundListener()
 
   _cacheDomflagsPanel: ->
@@ -58,8 +59,9 @@ class WatchDOMFlags
         @_cacheDomflagsPanel()
 
       if message is "create" and !@domflagsPanel?
-        @observer.observe document.body, @observerVars
+        @_cacheDomflags()
         @addNodesToPanel(@domflags) if @domflags.length > 0
+        @observer.observe document.body, @observerVars
 
   appendDomflagsPanel: ->
     cssPath = chrome.extension.getURL("src/inject/inject.css")
@@ -220,5 +222,5 @@ class WatchDOMFlags
     if mutation.target.hasAttribute('domflag') then @modifiedNodes.new.push(mutation.target)
     else @modifiedNodes.deleted.push(mutation.target)
 
-$(document).ready ->
-  new WatchDOMFlags document.querySelectorAll('[domflag]')
+## Start Watchdomflags
+new WatchDOMFlags
