@@ -17,6 +17,7 @@ class WatchDOMFlags
     @panelList     = undefined
     @shadowRoot    = undefined
     @modifiedNodes = undefined
+    @observer      = undefined
     @flagStrings   = []
     @observerVars  =
       attributes: true
@@ -24,8 +25,8 @@ class WatchDOMFlags
       attributeOldValue: false
       childList: true
       subtree: true
+    @setupDomObserver()
     @backgroundListener()
-    @domObserver().observe document.body, @observerVars
 
   _cacheDomflagsPanel: ->
     if @shadowRoot?
@@ -49,11 +50,15 @@ class WatchDOMFlags
 
   backgroundListener: ->
     chrome.runtime.onMessage.addListener (message, sender, sendResponse) =>
-      if message is "remove" and @domflagsPanel?
+      if message is "remove"
+        @observer.disconnect()
+
+        return if !@domflagsPanel?
         @domflagsPanel.parentNode.removeChild(@domflagsPanel)
         @_cacheDomflagsPanel()
 
-      if message is "create" and not @domflagsPanel?
+      if message is "create" and !@domflagsPanel?
+        @observer.observe document.body, @observerVars
         @addNodesToPanel(@domflags) if @domflags.length > 0
 
   appendDomflagsPanel: ->
@@ -172,8 +177,8 @@ class WatchDOMFlags
 
   # // DOM OBSERVER
   # /////////////////////////////////
-  domObserver: ->
-    new MutationObserver((mutations) =>
+  setupDomObserver: ->
+    @observer = new MutationObserver((mutations) =>
       @modifiedNodes = new: [], deleted: []
       for mutation in mutations
         switch mutation.type
