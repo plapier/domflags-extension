@@ -26,6 +26,7 @@ header {
   background: #fafafa;
   border-bottom: 1px solid #EAEAEA;
   padding: 14px 20px 8px;
+  position: relative;
 
   h1 {
     background: url("/icons/icon48.png") no-repeat;
@@ -119,7 +120,7 @@ section.keyboard-shortcuts {
 
 footer {
   text-align: center;
-  padding: 8px 20px 0;
+  padding: 6px 20px 2px;
 
   span {
     font-size: 11px;
@@ -127,24 +128,27 @@ footer {
   }
 
   a {
-    border-bottom: 1px solid #bbb;
+    $m: 5px;
+    border-bottom: 1px solid transparent;
     color: #999;
-    font-size: 12px;
+    font-size: 11px;
     line-height: 1;
     text-decoration: none;
+    margin-left: $m;
+    margin-right: $m;
 
-    $m: 5px;
+    &:hover {
+      border-color: #bbb;
+    }
+
     &:first-of-type {
       margin-right: $m;
+      margin-left: 0;
     }
 
-    &:nth-of-type(2) {
+    &:last-of-type {
       margin-left: $m;
-      margin-right: $m;
-    }
-
-    &:nth-of-type(3) {
-      margin-left: $m;
+      margin-right: 0;
     }
   }
 }
