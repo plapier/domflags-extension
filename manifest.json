@@ -37,7 +37,6 @@
         "file://*/*"
       ],
       "js": [
-        "js/jquery-2.1.0.min.js",
         "src/inject/inject.js"
       ]
     }

@@ -43,11 +43,28 @@ class WatchDOMFlags
   _getPanelItems: ->
     @domflagsPanel.getElementsByClassName('domflags-li')
 
+  _addNodes: (el) ->
+    @panelList.appendChild(el)
+
+  _positionNodes: (el, index, panelItems) ->
+    if index > 0
+      @panelList.insertBefore(el, panelItems[index - 1].nextSibling)
+    else
+      @panelList.insertBefore(el, panelItems[0])
+
+  _createEl: (elString, index) ->
+    el = document.createElement('domflags-li')
+    el.innerHTML = elString
+    el.className = 'domflags-li'
+    el.setAttribute('data-key', index)
+    return el
+
   _elToString: (node) ->
     tagName   = node.tagName.toLowerCase()
     idName    = if node.id then "#" + node.id else ""
     className = if node.className then "." + node.className else ""
     return tagName + idName + className
+
 
   backgroundListener: ->
     chrome.runtime.onMessage.addListener (message, sender, sendResponse) =>
@@ -117,7 +134,7 @@ class WatchDOMFlags
       listHeight = panelSwitch.height
       @domflagsPanel.classList.remove panelSwitch.remove
       @domflagsPanel.classList.add panelSwitch.add
-      $(@domflagsPanel).css('transform', "translateY(#{listHeight}px)")
+      @domflagsPanel.style.webkitTransform = "translateY(#{listHeight}px)"
 
     _triggerPanelPos = (event) =>
       targetPos = event.target.classList[1]
@@ -132,18 +149,10 @@ class WatchDOMFlags
       event.target.classList.add(oldPos)
 
   addNodesToPanel: (newNodes) ->
-    _addNodes = (el) =>
-      @panelList.innerHTML += el
-
-    _positionNodes = (el, index) ->
-      if index > 0 then $(panelItems[index - 1]).after(el)
-      else $(panelItems[0]).before(el)
-
     unless @domflagsPanel?
       @appendDomflagsPanel()
 
     panelItems = @_getPanelItems()
-
     for node in newNodes
       return if !node.hasAttribute('domflag')
 
@@ -151,14 +160,13 @@ class WatchDOMFlags
       @_cacheDomflags()
       index = [].indexOf.call(@domflags, node)
       @flagStrings.splice(index, 0, elString)
-      el = "<domflags-li class='domflags-li' data-key='#{index}'>#{elString}</domflags-li>"
 
+      el = @_createEl(elString, index)
       switch
-        when panelItems.length > 0 then _positionNodes(el, index)
-        else _addNodes(el)
+        when panelItems.length > 0 then @_positionNodes(el, index, panelItems)
+        else @_addNodes(el)
 
     @_calibrateIndexes()
-
 
   removeNodesFromPanel: (deletedNodes) ->
     @_cacheDomflagsPanel()
