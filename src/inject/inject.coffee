@@ -26,7 +26,6 @@ class WatchDOMFlags
       childList: true
       subtree: true
     @setupDomObserver()
-    @observer.observe document.body, @observerVars
     @backgroundListener()
 
   _cacheDomflagsPanel: ->
@@ -75,10 +74,12 @@ class WatchDOMFlags
         @domflagsPanel.parentNode.removeChild(@domflagsPanel)
         @_cacheDomflagsPanel()
 
-      if message is "create" and !@domflagsPanel?
-        @_cacheDomflags()
-        @addNodesToPanel(@domflags) if @domflags.length > 0
+      if message is "create"
         @observer.observe document.body, @observerVars
+
+        if !@domflagsPanel?
+          @_cacheDomflags()
+          @addNodesToPanel(@domflags) if @domflags.length > 0
 
   appendDomflagsPanel: ->
     cssPath = chrome.extension.getURL("src/inject/inject.css")

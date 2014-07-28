@@ -6,7 +6,7 @@ showDomFlag = (key) ->
 # Bug: http://crbug.com/178618
 # See workaround in background page
 # Auto-inspect first domflag when devtools first opens
-# chrome.storage.sync.get autoInspectOpen: true, (items) ->
+# chrome.storage.local.get autoInspectOpen: true, (items) ->
   # showDomFlag(0) if items.autoInspectOpen
 
 ##################
