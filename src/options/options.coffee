@@ -1,12 +1,12 @@
 save_options = ->
   autoInspectOpen   = document.getElementById("autoInspectOpen").checked
   autoInspectReload = document.getElementById("autoInspectReload").checked
-  chrome.storage.sync.set
+  chrome.storage.local.set
     autoInspectOpen: autoInspectOpen
     autoInspectReload: autoInspectReload
 
 restore_options = ->
-  chrome.storage.sync.get
+  chrome.storage.local.get
     autoInspectOpen: true
     autoInspectReload: true
   , (items) ->

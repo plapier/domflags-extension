@@ -28,7 +28,7 @@ chrome.runtime.onConnect.addListener (port) ->
     tabPort = ports[tabId].port
 
     ## Workaround for auto-inspect first flag when devtools first opens
-    chrome.storage.sync.get autoInspectOpen: true, (items) ->
+    chrome.storage.local.get autoInspectOpen: true, (items) ->
       if items.autoInspectOpen
         port.postMessage
           name: 'devtoolsOpened'
@@ -69,7 +69,7 @@ pageReload = (tabId, changeInfo, tab) ->
   togglePanel("create", tabId, tabPort) ## recreate panel
 
   ## Auto-inspect first flag when page is reloaded
-  chrome.storage.sync.get autoInspectReload: true, (items) ->
+  chrome.storage.local.get autoInspectReload: true, (items) ->
     if items.autoInspectReload
       tabPort.postMessage
         name: "pageReloaded"
