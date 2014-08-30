@@ -12,14 +12,15 @@ ELEMENT_NODE_TYPE = 1
 
 class WatchDOMFlags
   constructor: ->
-    @domflags      = undefined
-    @domflagsPanel = undefined
-    @panelList     = undefined
-    @shadowRoot    = undefined
-    @modifiedNodes = undefined
-    @observer      = undefined
-    @flagStrings   = []
-    @observerVars  =
+    @domflags       = undefined
+    @domflagsPanel  = undefined
+    @panelList      = undefined
+    @shadowRoot     = undefined
+    @modifiedNodes  = undefined
+    @observer       = undefined
+    @hideEmptyPanel = undefined
+    @flagStrings    = []
+    @observerVars   =
       attributes: true
       attributeFilter: ['domflag']
       attributeOldValue: false
@@ -38,6 +39,18 @@ class WatchDOMFlags
 
   _calibrateIndexes: ->
     panelItem.setAttribute 'data-key', i for panelItem, i in @_getPanelItems()
+
+  _toggleEmptyPanel: ->
+    if @panelList.childElementCount is 0
+      if @hideEmptyPanel is false
+        @domflagsPanel.classList.remove 'closed'
+        @domflagsPanel.classList.add 'opened', 'empty'
+        @domflagsPanel.style.webkitTransform = ""
+      else
+        @domflagsPanel.classList.add 'hidden'
+    else
+      @domflagsPanel.classList.remove 'empty', 'hidden'
+
 
   _getPanelItems: ->
     @domflagsPanel.getElementsByClassName('domflags-li')
@@ -67,19 +80,21 @@ class WatchDOMFlags
 
   backgroundListener: ->
     chrome.runtime.onMessage.addListener (message, sender, sendResponse) =>
-      if message is "remove"
+      if message.action is "remove"
         @observer.disconnect()
 
         return if !@domflagsPanel?
         @domflagsPanel.parentNode.removeChild(@domflagsPanel)
         @_cacheDomflagsPanel()
 
-      if message is "create"
+      if message.action is "create"
         @observer.observe document.body, @observerVars
+        @hideEmptyPanel = message.hidePanel
 
         if !@domflagsPanel?
           @_cacheDomflags()
-          @addNodesToPanel(@domflags) if @domflags.length > 0
+          if @domflags.length > 0 then @addNodesToPanel(@domflags)
+          else @appendDomflagsPanel()
 
   appendDomflagsPanel: ->
     cssPath = chrome.extension.getURL("src/inject/inject.css")
@@ -88,6 +103,7 @@ class WatchDOMFlags
             <domflags-panel id="domflags-panel" class="bottom left opened">
               <domflags-header class="domflags-header">DOMFLAGS</domflags-header>
               <domflags-button class="domflags-button right"></domflags-button>
+              <domflags-shortcut class="domflags-shortcut">Alt + Shift + D</domflags-shortcut>
               <domflags-ol class="domflags-ol"></domflags-ol>
             </domflags-panel>
             """
@@ -102,10 +118,13 @@ class WatchDOMFlags
     @_cacheDomflagsPanel()
     @panelList = @domflagsPanel.getElementsByClassName('domflags-ol')[0]
     @createPanelListeners()
+    @_toggleEmptyPanel()
 
 
   createPanelListeners: ->
     @domflagsPanel.addEventListener 'click', (event) =>
+      return if @domflagsPanel.classList.contains('empty')
+
       switch event.target.classList[0]
         when 'domflags-li'     then _triggerPanel(event)
         when 'domflags-header' then _triggerHeader()
@@ -168,6 +187,7 @@ class WatchDOMFlags
         else @_addNodes(el)
 
     @_calibrateIndexes()
+    @_toggleEmptyPanel()
 
   removeNodesFromPanel: (deletedNodes) ->
     @_cacheDomflagsPanel()
@@ -185,6 +205,7 @@ class WatchDOMFlags
 
     @_cacheDomflags()
     @_calibrateIndexes()
+    @_toggleEmptyPanel()
 
   # // DOM OBSERVER
   # /////////////////////////////////

@@ -24,4 +24,15 @@ compile, and minify the coffeescript files:
 $ coffeebar -w -m src
 ```
 
+
+Compile sass for the Inject CSS
+```sh
+$ sass --watch --style compressed src/inject/sass/:src/inject
+```
+
+Compile sass for the Options CSS
+```sh
+$ sass --watch --style compressed src/options/sass/:src/options
+```
+
 [coffeebar]: https://www.npmjs.org/package/coffeebar

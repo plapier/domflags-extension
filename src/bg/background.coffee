@@ -14,25 +14,40 @@ _gaq.push ["_trackPageview"]
 
 ###############
 
+@hideEmptyPanel = undefined
+@autoInspectOpen = undefined
+@autoInspectReload = undefined
+
+chrome.storage.local.get (items) =>
+  @hideEmptyPanel = items.hideEmptyPanel
+  @autoInspectOpen = items.autoInspectOpen
+  @autoInspectReload = items.autoInspectReload
+
+chrome.storage.onChanged.addListener (changes) =>
+  for key of changes
+    switch key
+      when 'hideEmptyPanel' then @hideEmptyPanel = changes.hideEmptyPanel.newValue
+      when 'autoInspectOpen' then @autoInspectOpen = changes.autoInspectOpen.newValue
+      when 'autoInspectReload' then @autoInspectReload = changes.autoInspectReload.newValue
+
 togglePanel = (message, tabId, port) ->
   chrome.tabs.sendMessage(tabId, message)
 
-ports = []
-chrome.runtime.onConnect.addListener (port) ->
+@ports = []
+chrome.runtime.onConnect.addListener (port) =>
   return if port.name isnt "devtools"
 
-  chrome.tabs.query currentWindow: true, active: true, (tabs) ->
+  chrome.tabs.query currentWindow: true, active: true, (tabs) =>
     ## Create array of tabs with open ports
     tabId = tabs[0].id
-    ports[tabId] = port: port, portId: port.portId_, tab: tabId
-    tabPort = ports[tabId].port
+    @ports[tabId] = port: port, portId: port.portId_, tab: tabId
+    tabPort = @ports[tabId].port
 
     ## Workaround for auto-inspect first flag when devtools first opens
-    chrome.storage.local.get autoInspectOpen: true, (items) ->
-      if items.autoInspectOpen
-        port.postMessage
-          name: 'devtoolsOpened'
-          key: 0
+    if @autoInspectOpen
+      port.postMessage
+        name: 'devtoolsOpened'
+        key: 0
 
     ## When item in panel is clicked, send message to devtools
     contentScript = (message, sender, sendResponse) ->
@@ -46,42 +61,41 @@ chrome.runtime.onConnect.addListener (port) ->
     ## Init message passing on runtime
     chrome.runtime.onMessage.addListener(contentScript)
 
-    port.onDisconnect.addListener (port) ->
+    port.onDisconnect.addListener (port) =>
       chrome.runtime.onMessage.removeListener(contentScript)
-      togglePanel("remove", tabId, tabPort)
-      delete ports[tabId]
+      togglePanel({action: "remove", hidePanel: undefined}, tabId, tabPort)
+      delete @ports[tabId]
 
 
   # Create DomFlags Panel when devtools opens
-  port.onMessage.addListener (msg) ->
-    chrome.tabs.query currentWindow: true, active: true, (tabs) ->
+  port.onMessage.addListener (msg) =>
+    chrome.tabs.query currentWindow: true, active: true, (tabs) =>
       tabId = tabs[0].id
-      tabPort = ports[tabId].port
-      togglePanel("create", tabId, tabPort)
+      tabPort = @ports[tabId].port
+      togglePanel({action: "create", hidePanel: @hideEmptyPanel}, tabId, tabPort)
 
 
 ## Handle PageReload Events
-pageReload = (tabId, changeInfo, tab) ->
+pageReload = (tabId, changeInfo, tab) =>
   return if changeInfo.status isnt 'complete'
-  return if !ports[tabId]? ## verify tab has open port
+  return if !@ports[tabId]? ## verify tab has open port
 
-  tabPort = ports[tabId].port
-  togglePanel("create", tabId, tabPort) ## recreate panel
+  tabPort = @ports[tabId].port
+  togglePanel({action: "create", hidePanel: @hideEmptyPanel}, tabId, tabPort) ## recreate panel
 
   ## Auto-inspect first flag when page is reloaded
-  chrome.storage.local.get autoInspectReload: true, (items) ->
-    if items.autoInspectReload
-      tabPort.postMessage
-        name: "pageReloaded"
-        key: 0
+  if @autoInspectReload
+    tabPort.postMessage
+      name: "pageReloaded"
+      key: 0
 
 ## Setup keyboard shortcuts
-keyboardShortcuts = (command) ->
-  chrome.tabs.query currentWindow: true, active: true, (tabs) ->
+keyboardShortcuts = (command) =>
+  chrome.tabs.query currentWindow: true, active: true, (tabs) =>
     tabId = tabs[0].id
-    return if !ports[tabId]?
+    return if !@ports[tabId]?
 
-    tabPort = ports[tabId].port
+    tabPort = @ports[tabId].port
     if command is "toggle_domflag"
       tabPort.postMessage
         name: "getInspectedEl"

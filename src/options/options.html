@@ -12,8 +12,8 @@
       <header>
         <h1>DomFlags</h1>
       </header>
-      <form>
-        <fieldset class="auto-inspect">
+      <form class="auto-inspect">
+        <fieldset>
           <p class="title">Auto-focus the first domflag:</p>
           <div class="input">
             <label>
@@ -25,6 +25,17 @@
             <label>
               <input type="checkbox" id="autoInspectReload">
               <span>on page <em>reload</em> (with DevTools open)</span>
+            </label>
+          </div>
+        </fieldset>
+      </form>
+
+      <form class="hide-empty-panel">
+        <fieldset>
+          <div class="input">
+            <label>
+              <input type="checkbox" id="hideEmptyPanel">
+              <span>hide panel when empty</span>
             </label>
           </div>
         </fieldset>
