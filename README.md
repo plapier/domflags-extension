@@ -1,9 +1,9 @@
 DomFlags
 ========
 
-A chrome extension to create keyboard shortcuts to DOM elements.
-
 [DomFlags.com](http://domflags.com) — [View in the Chrome store](https://chrome.google.com/webstore/detail/domflags/nindoglnpjcjoaheijieagogboabafkc)
+
+A chrome extension to create keyboard shortcuts to DOM elements.
 
 DomFlags is now open source. Cheers! [@_LaPier](http://twitter.com/_lapier)
 
