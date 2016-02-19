@@ -3,9 +3,9 @@ DomFlags
 
 A chrome extension to create keyboard shortcuts to DOM elements.
 
-Closed source for now.
+[DomFlags.com](http://domflags.com) — [View in the Chrome store](https://chrome.google.com/webstore/detail/domflags/nindoglnpjcjoaheijieagogboabafkc)
 
-#### [Issues](https://github.com/plapier/domflags-extension/issues) can be viewed in the public repo –  [DomFlags-extension](https://github.com/plapier/domflags-extension/)
+DomFlags is now open source. Cheers! [@_LaPier](http://twitter.com/_lapier)
 
 Development
 -----------
